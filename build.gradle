@@ -50,11 +50,19 @@ dependencies {
 
     //implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     //implementation 'org.apache.kafka:kafka-streams'
-    //implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.kafka:spring-kafka'
     //implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     //implementation 'io.netty:netty-resolver-dns-native-macos:4.1.72.Final:osx-aarch_64'
     implementation 'commons-codec:commons-codec:1.15'
     implementation 'com.google.guava:guava:31.0.1-jre'
+
+    implementation 'no.fintlabs:fint-core-cache:0.2.0'
+    implementation 'no.fintlabs:fint-kafka:2.2.0'
+    implementation 'no.fint:fint-event-model:3.0.1'
+    implementation('no.fint:fint-relations:2.2.1') {
+        exclude group: 'com.github.springfox.loader'
+        exclude group: 'org.springframework.boot'
+    }
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
