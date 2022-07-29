@@ -8,7 +8,6 @@ plugins {
 }
 
 group = 'no.fintlabs'
-version = '0-SNAPSHOT'
 sourceCompatibility = '17'
 
 configurations {
