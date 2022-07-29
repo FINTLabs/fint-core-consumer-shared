@@ -1,13 +1,17 @@
-package no.fintlabs.core.consumer.shared;
+package no.fintlabs.core.consumer.shared.resource;
 
+import no.fint.model.resource.FintLinks;
 import no.fintlabs.cache.Cache;
 import no.fintlabs.cache.CacheManager;
+import no.fintlabs.core.consumer.shared.ConsumerProps;
+import no.fintlabs.core.consumer.shared.KafkaConsumer;
 
 import java.io.Serializable;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 // TODO: 01/03/2022 Move to fint-core-cache
-public abstract class ConsumerService<T extends Serializable> {
+public abstract class ConsumerService<T extends FintLinks & Serializable> {
 
     private Cache<T> cache;
     private CacheManager cacheManager;
@@ -25,6 +29,8 @@ public abstract class ConsumerService<T extends Serializable> {
     }
 
     protected abstract Cache<T> initializeCache(CacheManager cacheManager, ConsumerProps consumerProps, String modelName);
+
+    public abstract Optional<T> getBySystemId(String systemId);
 
     protected Cache<T> getCache() {
         return cache;

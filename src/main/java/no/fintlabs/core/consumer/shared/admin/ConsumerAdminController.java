@@ -6,7 +6,7 @@ import no.fint.event.model.HeaderConstants;
 import no.fint.event.model.health.Health;
 import no.fintlabs.cache.CacheManager;
 import no.fintlabs.core.consumer.shared.ConsumerProps;
-import no.fintlabs.core.consumer.shared.ConsumerService;
+import no.fintlabs.core.consumer.shared.resource.ConsumerService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,12 +18,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-public abstract class BaseAdminController {
+public abstract class ConsumerAdminController {
 
     private final CacheManager cacheManager;
     private final ConsumerProps consumerProps;
 
-    public BaseAdminController(CacheManager cacheManager, ConsumerProps consumerProps) {
+    public ConsumerAdminController(CacheManager cacheManager, ConsumerProps consumerProps) {
         this.cacheManager = cacheManager;
         this.consumerProps = consumerProps;
     }
