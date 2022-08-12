@@ -62,6 +62,7 @@ dependencies {
         exclude group: 'com.github.springfox.loader'
         exclude group: 'org.springframework.boot'
     }
+    implementation 'no.fintlabs:fint-core-infra-models:0-SNAPSHOT'
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'

@@ -4,7 +4,6 @@ import no.fint.model.resource.FintLinks;
 import no.fintlabs.cache.Cache;
 import no.fintlabs.cache.CacheManager;
 import no.fintlabs.core.consumer.shared.ConsumerProps;
-import no.fintlabs.core.consumer.shared.KafkaConsumer;
 
 import java.io.Serializable;
 import java.util.Optional;

@@ -20,11 +20,11 @@ import java.util.stream.Stream;
 public abstract class ConsumerRestController<T extends FintLinks & Serializable> {
 
     private final ConsumerService<T> consumerService;
-    private final FintLinker<T> fintLinker;
+    protected final FintLinker<T> fintLinks;
 
-    protected ConsumerRestController(ConsumerService<T> consumerService, FintLinker<T> fintLinker) {
+    protected ConsumerRestController(ConsumerService<T> consumerService, FintLinker<T> fintLinks) {
         this.consumerService = consumerService;
-        this.fintLinker = fintLinker;
+        this.fintLinks = fintLinks;
     }
 
     @GetMapping("/last-updated")
@@ -82,7 +82,7 @@ public abstract class ConsumerRestController<T extends FintLinks & Serializable>
 
         //fintAuditService.audit(event, Status.CACHE_RESPONSE, Status.SENT_TO_CLIENT);
 
-        return fintLinker.toResources(resources, offset, size, consumerService.getCacheSize());
+        return fintLinks.toResources(resources, offset, size, consumerService.getCacheSize());
     }
 
     @GetMapping("/systemid/{id:.+}")
@@ -110,7 +110,7 @@ public abstract class ConsumerRestController<T extends FintLinks & Serializable>
 //
 //            fintAuditService.audit(event, Status.CACHE_RESPONSE, Status.SENT_TO_CLIENT);
 //
-        return fravar.map(fintLinker::toResource).orElseThrow(() -> new EntityNotFoundException(id));
+        return fravar.map(fintLinks::toResource).orElseThrow(() -> new EntityNotFoundException(id));
 //
 //        } else {
 //            BlockingQueue<Event> queue = synchronousEvents.register(event);
