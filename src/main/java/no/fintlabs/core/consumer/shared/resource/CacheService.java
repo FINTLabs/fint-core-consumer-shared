@@ -3,31 +3,30 @@ package no.fintlabs.core.consumer.shared.resource;
 import no.fint.model.resource.FintLinks;
 import no.fintlabs.cache.Cache;
 import no.fintlabs.cache.CacheManager;
-import no.fintlabs.core.consumer.shared.ConsumerProps;
+import no.fintlabs.core.consumer.shared.resource.kafka.KafkaService;
 
 import java.io.Serializable;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-// TODO: 01/03/2022 Move to fint-core-cache
-public abstract class ConsumerService<T extends FintLinks & Serializable> {
+public abstract class CacheService<T extends FintLinks & Serializable> {
 
-    private Cache<T> cache;
-    private CacheManager cacheManager;
-    private final ConsumerProps consumerProps;
-    private final String modelName;
-    private final KafkaConsumer<T> kafkaConsumer;
+    private final ConsumerConfig<T> consumerConfig;
+    private final Cache<T> cache;
+    private final CacheManager cacheManager;
+    private final KafkaService<T> kafkaService;
 
-    public ConsumerService(CacheManager cacheManager, Class modelType, ConsumerProps consumerProps, KafkaConsumer<T> kafkaConsumer) {
+    public CacheService(ConsumerConfig<T> consumerConfig,
+                        CacheManager cacheManager,
+                        KafkaService<T> kafkaService) {
+        this.consumerConfig = consumerConfig;
         this.cacheManager = cacheManager;
-        this.consumerProps = consumerProps;
-        this.modelName = modelType.getSimpleName().toLowerCase();
-        this.kafkaConsumer = kafkaConsumer;
+        this.kafkaService = kafkaService;
 
-        cache = initializeCache(cacheManager, consumerProps, modelName);
+        cache = initializeCache(cacheManager, consumerConfig, consumerConfig.getResourceName());
     }
 
-    protected abstract Cache<T> initializeCache(CacheManager cacheManager, ConsumerProps consumerProps, String modelName);
+    protected abstract Cache<T> initializeCache(CacheManager cacheManager, ConsumerConfig<T> consumerConfig, String modelName);
 
     public abstract Optional<T> getBySystemId(String systemId);
 
@@ -45,7 +44,7 @@ public abstract class ConsumerService<T extends FintLinks & Serializable> {
 
     public void resetCache() {
         cache.flush();
-        kafkaConsumer.seekToBeginning();
+        kafkaService.getEntityKafkaConsumer().seekToBeginning();
     }
 
     public Stream<T> streamSliceSince(long sinceTimeStamp, int offset, int size) {
@@ -72,7 +71,7 @@ public abstract class ConsumerService<T extends FintLinks & Serializable> {
         return cache.getUrn();
     }
 
-    public String getModelName() {
-        return modelName;
+    public String getResourceName() {
+        return consumerConfig.getResourceName();
     }
 }

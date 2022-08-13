@@ -19,25 +19,25 @@ import java.util.stream.Stream;
 @Slf4j
 public abstract class ConsumerRestController<T extends FintLinks & Serializable> {
 
-    private final ConsumerService<T> consumerService;
+    private final CacheService<T> cacheService;
     protected final FintLinker<T> fintLinks;
 
-    protected ConsumerRestController(ConsumerService<T> consumerService, FintLinker<T> fintLinks) {
-        this.consumerService = consumerService;
+    protected ConsumerRestController(CacheService<T> cacheService, FintLinker<T> fintLinks) {
+        this.cacheService = cacheService;
         this.fintLinks = fintLinks;
     }
 
     @GetMapping("/last-updated")
     public Map<String, String> getLastUpdated(@RequestHeader(name = HeaderConstants.ORG_ID, required = false) String orgId) {
 
-        String lastUpdated = Long.toString(consumerService.getLastUpdated());
+        String lastUpdated = Long.toString(cacheService.getLastUpdated());
         return Map.of("lastUpdated", lastUpdated);
     }
 
     @GetMapping("/cache/size")
     public Map<String, Integer> getCacheSize(@RequestHeader(name = HeaderConstants.ORG_ID, required = false) String orgId) {
 
-        return Map.of("size", consumerService.getCacheSize());
+        return Map.of("size", cacheService.getCacheSize());
     }
 
     // TODO: 29/07/2022 Trond - Output endret fra FravarResources til AbstractCollectionResources<FravarResource> 
@@ -71,18 +71,18 @@ public abstract class ConsumerRestController<T extends FintLinks & Serializable>
 
         Stream<T> resources;
         if (size > 0 && offset >= 0 && sinceTimeStamp > 0) {
-            resources = consumerService.streamSliceSince(sinceTimeStamp, offset, size);
+            resources = cacheService.streamSliceSince(sinceTimeStamp, offset, size);
         } else if (size > 0 && offset >= 0) {
-            resources = consumerService.streamSlice(offset, size);
+            resources = cacheService.streamSlice(offset, size);
         } else if (sinceTimeStamp > 0) {
-            resources = consumerService.streamSince(sinceTimeStamp);
+            resources = cacheService.streamSince(sinceTimeStamp);
         } else {
-            resources = consumerService.streamAll();
+            resources = cacheService.streamAll();
         }
 
         //fintAuditService.audit(event, Status.CACHE_RESPONSE, Status.SENT_TO_CLIENT);
 
-        return fintLinks.toResources(resources, offset, size, consumerService.getCacheSize());
+        return fintLinks.toResources(resources, offset, size, cacheService.getCacheSize());
     }
 
     @GetMapping("/systemid/{id:.+}")
@@ -106,7 +106,7 @@ public abstract class ConsumerRestController<T extends FintLinks & Serializable>
 //            fintAuditService.audit(event);
 //            fintAuditService.audit(event, Status.CACHE);
 //
-        Optional<T> fravar = consumerService.getBySystemId(id);
+        Optional<T> fravar = cacheService.getBySystemId(id);
 //
 //            fintAuditService.audit(event, Status.CACHE_RESPONSE, Status.SENT_TO_CLIENT);
 //

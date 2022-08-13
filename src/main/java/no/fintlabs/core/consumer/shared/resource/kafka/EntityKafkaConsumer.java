@@ -1,7 +1,7 @@
-package no.fintlabs.core.consumer.shared.resource;
+package no.fintlabs.core.consumer.shared.resource.kafka;
 
 import lombok.extern.slf4j.Slf4j;
-import no.fintlabs.core.consumer.shared.ConsumerProps;
+import no.fintlabs.core.consumer.shared.resource.ConsumerConfig;
 import no.fintlabs.kafka.common.ListenerBeanRegistrationService;
 import no.fintlabs.kafka.common.OffsetSeekingTrigger;
 import no.fintlabs.kafka.entity.EntityConsumerConfiguration;
@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 @Slf4j
-public class KafkaConsumer<V> {
+public class EntityKafkaConsumer<V> {
 
     private final EntityConsumerFactoryService entityConsumerFactoryService;
     private final ListenerBeanRegistrationService listenerBeanRegistrationService;
@@ -26,19 +26,19 @@ public class KafkaConsumer<V> {
     private final String resourceName;
     private final OffsetSeekingTrigger resetTrigger;
 
-    public KafkaConsumer(
+    public EntityKafkaConsumer(
             EntityConsumerFactoryService entityConsumerFactoryService,
             ListenerBeanRegistrationService listenerBeanRegistrationService,
             EntityTopicService entityTopicService,
-            ConsumerProps consumerProps
+            ConsumerConfig consumerConfig
     ) {
         this.entityConsumerFactoryService = entityConsumerFactoryService;
         this.listenerBeanRegistrationService = listenerBeanRegistrationService;
         this.entityTopicService = entityTopicService;
         this.resourceName = String.format("{}-{}-{}",
-                consumerProps.getDomainName(),
-                consumerProps.getPackageName(),
-                consumerProps.getResourceName()
+                consumerConfig.getDomainName(),
+                consumerConfig.getPackageName(),
+                consumerConfig.getResourceName()
         );
         resetTrigger = new OffsetSeekingTrigger();
     }

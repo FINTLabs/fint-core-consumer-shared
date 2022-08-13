@@ -6,7 +6,7 @@ import no.fint.event.model.HeaderConstants;
 import no.fint.event.model.health.Health;
 import no.fintlabs.cache.CacheManager;
 import no.fintlabs.core.consumer.shared.ConsumerProps;
-import no.fintlabs.core.consumer.shared.resource.ConsumerService;
+import no.fintlabs.core.consumer.shared.resource.CacheService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public abstract class ConsumerAdminController {
 
     private final CacheManager cacheManager;
+
     private final ConsumerProps consumerProps;
 
     public ConsumerAdminController(CacheManager cacheManager, ConsumerProps consumerProps) {
@@ -56,7 +57,7 @@ public abstract class ConsumerAdminController {
     public Collection<String> getOrganisations() {
         return getConsumerServices()
                 .stream()
-                .map(consumerService -> consumerService.getCacheUrn())
+                .map(cacheService -> cacheService.getCacheUrn())
                 .collect(Collectors.toList());
     }
 
@@ -77,8 +78,8 @@ public abstract class ConsumerAdminController {
         return getConsumerServices()
                 .stream()
                 .collect(Collectors.toMap(
-                        ConsumerService::getCacheUrn,
-                        ConsumerService::getCacheSize)
+                        CacheService::getCacheUrn,
+                        CacheService::getCacheSize)
                 );
     }
 
@@ -93,7 +94,7 @@ public abstract class ConsumerAdminController {
                 .collect(
                         Collectors.groupingBy(s -> consumerProps.getOrgId(),
                                 Collectors.toMap(
-                                        s -> s.getModelName(),
+                                        s -> s.getResourceName(),
                                         s -> new CacheEntry(new Date(s.getLastUpdated()), s.getCacheSize())
                                 )
                         )
@@ -109,9 +110,9 @@ public abstract class ConsumerAdminController {
         log.info("Cache rebuild on {} requested by {}", orgid, client);
         getConsumerServices()
                 .stream()
-                .filter(cacheService -> StringUtils.isBlank(model) || StringUtils.equalsIgnoreCase(cacheService.getModelName(), model))
+                .filter(cacheService -> StringUtils.isBlank(model) || StringUtils.equalsIgnoreCase(cacheService.getResourceName(), model))
                 .forEach(cacheService -> cacheService.resetCache());
     }
 
-    protected abstract Collection<ConsumerService<?>> getConsumerServices();
+    protected abstract Collection<CacheService<?>> getConsumerServices();
 }

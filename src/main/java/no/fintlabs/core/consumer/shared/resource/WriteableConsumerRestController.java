@@ -4,7 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import no.fint.model.resource.FintLinks;
 import no.fint.relations.FintLinker;
 import no.fintlabs.adapter.models.RequestFintEvent;
-import no.fintlabs.core.consumer.shared.ConsumerProps;
+import no.fintlabs.core.consumer.shared.resource.kafka.EventKafkaProducer;
+import no.fintlabs.core.consumer.shared.resource.kafka.KafkaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,11 +21,17 @@ import java.util.UUID;
 @Slf4j
 public class WriteableConsumerRestController<T extends FintLinks & Serializable> extends ConsumerRestController<T> {
 
-    private final ConsumerProps consumerProps;
+    private final ConsumerConfig consumerConfig;
 
-    public WriteableConsumerRestController(ConsumerService<T> consumerService, FintLinker<T> fintLinker, ConsumerProps consumerProps) {
-        super(consumerService, fintLinker);
-        this.consumerProps = consumerProps;
+    private final KafkaService<T> kafkaService;
+
+    public WriteableConsumerRestController(
+            CacheService<T> cacheService,
+            FintLinker<T> fintLinker,
+            ConsumerConfig consumerConfig, KafkaService<T> kafkaService) {
+        super(cacheService, fintLinker);
+        this.consumerConfig = consumerConfig;
+        this.kafkaService = kafkaService;
     }
 
 //    @GetMapping("/status/{id}")
@@ -47,6 +54,7 @@ public class WriteableConsumerRestController<T extends FintLinks & Serializable>
         log.debug("postBehandling, Validate: {}, OrgId: {}, Client: {}", validate, orgId, client);
         log.trace("Body: {}", body);
 
+        // TODO: 13/08/2022 Should mapLinks be called?
 //        linker.mapLinks(body);
 //        Event event = new Event(orgId, Constants.COMPONENT, SamtykkeActions.UPDATE_BEHANDLING, client);
 //        event.addObject(objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS).convertValue(body, Map.class));
@@ -57,18 +65,15 @@ public class WriteableConsumerRestController<T extends FintLinks & Serializable>
 
         RequestFintEvent<T> event = new RequestFintEvent<>();
         event.setCorrId(UUID.randomUUID().toString());
-        event.setOrgId(consumerProps.getOrgId());
-        event.setDomainName(consumerProps.getDomainName());
-        event.setPackageName(consumerProps.getPackageName());
-        event.setResourceName(consumerProps.getResourceName());
+        event.setOrgId(consumerConfig.getOrgId());
+        event.setDomainName(consumerConfig.getDomainName());
+        event.setPackageName(consumerConfig.getPackageName());
+        event.setResourceName(consumerConfig.getResourceName());
         event.setOperation(RequestFintEvent.OperationType.CREATE);
         event.setCreated(System.currentTimeMillis());
         event.setValue(body);
 
-        // TODO: 12/08/2022 :
-        // - post event to kafka
-        // - Kan avnehgigheter skrives om til å lastes i egne klasser (DI, noe går automatisk, men noe må lastes via konstruktør)
-        //     - Evt om det kan defineres i abstrakte metoder
+        kafkaService.getEventKafkaProducer().sendEvent(event, EventKafkaProducer.OperationType.CREATE);
 
         URI location = UriComponentsBuilder.fromUriString(fintLinks.self()).path("status/{id}").buildAndExpand(event.getCorrId()).toUri();
         return ResponseEntity.status(HttpStatus.ACCEPTED).location(location).build();
