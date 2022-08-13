@@ -8,10 +8,7 @@ import no.fintlabs.core.consumer.shared.resource.kafka.EventKafkaProducer;
 import no.fintlabs.core.consumer.shared.resource.kafka.KafkaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.Serializable;
@@ -43,7 +40,6 @@ public class WriteableConsumerRestController<T extends FintLinks & Serializable>
 //        return statusCache.handleStatusRequest(id, orgId, linker, BehandlingResource.class);
 //}
 
-    //
     @PostMapping
     public ResponseEntity postBehandling(
             @RequestHeader(name = HeaderConstants.ORG_ID) String orgId,
@@ -63,32 +59,23 @@ public class WriteableConsumerRestController<T extends FintLinks & Serializable>
 //
 //        statusCache.put(event.getCorrId(), event);
 
-        RequestFintEvent<T> event = new RequestFintEvent<>();
-        event.setCorrId(UUID.randomUUID().toString());
-        event.setOrgId(consumerConfig.getOrgId());
-        event.setDomainName(consumerConfig.getDomainName());
-        event.setPackageName(consumerConfig.getPackageName());
-        event.setResourceName(consumerConfig.getResourceName());
-        event.setOperation(RequestFintEvent.OperationType.CREATE);
-        event.setCreated(System.currentTimeMillis());
-        event.setValue(body);
-
+        RequestFintEvent<T> event = createRequestEvent(body, RequestFintEvent.OperationType.CREATE);
         kafkaService.getEventKafkaProducer().sendEvent(event, EventKafkaProducer.OperationType.CREATE);
 
         URI location = UriComponentsBuilder.fromUriString(fintLinks.self()).path("status/{id}").buildAndExpand(event.getCorrId()).toUri();
         return ResponseEntity.status(HttpStatus.ACCEPTED).location(location).build();
     }
 
+    @PutMapping("/systemid/{id:.+}")
+    public ResponseEntity putBehandlingBySystemId(
+            @PathVariable String id,
+            @RequestHeader(name = HeaderConstants.ORG_ID) String orgId,
+            @RequestHeader(name = HeaderConstants.CLIENT) String client,
+            @RequestBody T body
+    ) {
+        log.debug("putBehandlingBySystemId {}, OrgId: {}, Client: {}", id, orgId, client);
+        log.trace("Body: {}", body);
 
-//    @PutMapping("/systemid/{id:.+}")
-//    public ResponseEntity putBehandlingBySystemId(
-//            @PathVariable String id,
-//            @RequestHeader(name = HeaderConstants.ORG_ID) String orgId,
-//            @RequestHeader(name = HeaderConstants.CLIENT) String client,
-//            @RequestBody BehandlingResource body
-//    ) {
-//        log.debug("putBehandlingBySystemId {}, OrgId: {}, Client: {}", id, orgId, client);
-//        log.trace("Body: {}", body);
 //        linker.mapLinks(body);
 //        Event event = new Event(orgId, Constants.COMPONENT, SamtykkeActions.UPDATE_BEHANDLING, client);
 //        event.setQuery("systemid/" + id);
@@ -99,8 +86,25 @@ public class WriteableConsumerRestController<T extends FintLinks & Serializable>
 //        consumerEventUtil.send(event);
 //
 //        statusCache.put(event.getCorrId(), event);
-//
-//        URI location = UriComponentsBuilder.fromUriString(linker.self()).path("status/{id}").buildAndExpand(event.getCorrId()).toUri();
-//        return ResponseEntity.status(HttpStatus.ACCEPTED).location(location).build();
-//    }
+
+        RequestFintEvent<T> event = createRequestEvent(body, RequestFintEvent.OperationType.UPDATE);
+        kafkaService.getEventKafkaProducer().sendEvent(event, EventKafkaProducer.OperationType.UPDATE);
+
+        URI location = UriComponentsBuilder.fromUriString(fintLinks.self()).path("status/{id}").buildAndExpand(event.getCorrId()).toUri();
+        return ResponseEntity.status(HttpStatus.ACCEPTED).location(location).build();
+    }
+
+    private RequestFintEvent<T> createRequestEvent(T body, RequestFintEvent.OperationType operationType) {
+        RequestFintEvent<T> event = new RequestFintEvent<>();
+        event.setCorrId(UUID.randomUUID().toString());
+        event.setOrgId(consumerConfig.getOrgId());
+        event.setDomainName(consumerConfig.getDomainName());
+        event.setPackageName(consumerConfig.getPackageName());
+        event.setResourceName(consumerConfig.getResourceName());
+        event.setOperation(operationType);
+        event.setCreated(System.currentTimeMillis());
+        event.setValue(body);
+        return event;
+    }
+
 }
