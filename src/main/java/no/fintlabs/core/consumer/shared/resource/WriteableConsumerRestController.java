@@ -5,7 +5,6 @@ import no.fint.model.resource.FintLinks;
 import no.fint.relations.FintLinker;
 import no.fintlabs.adapter.models.RequestFintEvent;
 import no.fintlabs.core.consumer.shared.resource.kafka.EventKafkaProducer;
-import no.fintlabs.core.consumer.shared.resource.kafka.KafkaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,19 +15,20 @@ import java.net.URI;
 import java.util.UUID;
 
 @Slf4j
-public class WriteableConsumerRestController<T extends FintLinks & Serializable> extends ConsumerRestController<T> {
+public abstract class WriteableConsumerRestController<T extends FintLinks & Serializable> extends ConsumerRestController<T> {
 
     private final ConsumerConfig consumerConfig;
 
-    private final KafkaService<T> kafkaService;
+    private final EventKafkaProducer eventKafkaProducer;
 
     public WriteableConsumerRestController(
             CacheService<T> cacheService,
             FintLinker<T> fintLinker,
-            ConsumerConfig consumerConfig, KafkaService<T> kafkaService) {
+            ConsumerConfig consumerConfig,
+            EventKafkaProducer eventKafkaProducer) {
         super(cacheService, fintLinker);
         this.consumerConfig = consumerConfig;
-        this.kafkaService = kafkaService;
+        this.eventKafkaProducer = eventKafkaProducer;
     }
 
 //    @GetMapping("/status/{id}")
@@ -39,6 +39,7 @@ public class WriteableConsumerRestController<T extends FintLinks & Serializable>
 //        log.debug("/status/{} for {} from {}", id, orgId, client);
 //        return statusCache.handleStatusRequest(id, orgId, linker, BehandlingResource.class);
 //}
+
 
     @PostMapping
     public ResponseEntity postBehandling(
@@ -60,7 +61,7 @@ public class WriteableConsumerRestController<T extends FintLinks & Serializable>
 //        statusCache.put(event.getCorrId(), event);
 
         RequestFintEvent<T> event = createRequestEvent(body, RequestFintEvent.OperationType.CREATE);
-        kafkaService.getEventKafkaProducer().sendEvent(event, EventKafkaProducer.OperationType.CREATE);
+        eventKafkaProducer.sendEvent(event, EventKafkaProducer.OperationType.CREATE);
 
         URI location = UriComponentsBuilder.fromUriString(fintLinks.self()).path("status/{id}").buildAndExpand(event.getCorrId()).toUri();
         return ResponseEntity.status(HttpStatus.ACCEPTED).location(location).build();
@@ -88,7 +89,7 @@ public class WriteableConsumerRestController<T extends FintLinks & Serializable>
 //        statusCache.put(event.getCorrId(), event);
 
         RequestFintEvent<T> event = createRequestEvent(body, RequestFintEvent.OperationType.UPDATE);
-        kafkaService.getEventKafkaProducer().sendEvent(event, EventKafkaProducer.OperationType.UPDATE);
+        eventKafkaProducer.sendEvent(event, EventKafkaProducer.OperationType.UPDATE);
 
         URI location = UriComponentsBuilder.fromUriString(fintLinks.self()).path("status/{id}").buildAndExpand(event.getCorrId()).toUri();
         return ResponseEntity.status(HttpStatus.ACCEPTED).location(location).build();

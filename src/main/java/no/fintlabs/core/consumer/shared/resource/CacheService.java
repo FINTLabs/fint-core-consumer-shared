@@ -3,7 +3,7 @@ package no.fintlabs.core.consumer.shared.resource;
 import no.fint.model.resource.FintLinks;
 import no.fintlabs.cache.Cache;
 import no.fintlabs.cache.CacheManager;
-import no.fintlabs.core.consumer.shared.resource.kafka.KafkaService;
+import no.fintlabs.core.consumer.shared.resource.kafka.EntityKafkaConsumer;
 
 import java.io.Serializable;
 import java.util.Optional;
@@ -14,14 +14,14 @@ public abstract class CacheService<T extends FintLinks & Serializable> {
     private final ConsumerConfig<T> consumerConfig;
     private final Cache<T> cache;
     private final CacheManager cacheManager;
-    private final KafkaService<T> kafkaService;
+    private final EntityKafkaConsumer<T> entityKafkaConsumer;
 
     public CacheService(ConsumerConfig<T> consumerConfig,
                         CacheManager cacheManager,
-                        KafkaService<T> kafkaService) {
+                        EntityKafkaConsumer<T> entityKafkaConsumer) {
         this.consumerConfig = consumerConfig;
         this.cacheManager = cacheManager;
-        this.kafkaService = kafkaService;
+        this.entityKafkaConsumer = entityKafkaConsumer;
 
         cache = initializeCache(cacheManager, consumerConfig, consumerConfig.getResourceName());
     }
@@ -44,7 +44,7 @@ public abstract class CacheService<T extends FintLinks & Serializable> {
 
     public void resetCache() {
         cache.flush();
-        kafkaService.getEntityKafkaConsumer().seekToBeginning();
+        entityKafkaConsumer.seekToBeginning();
     }
 
     public Stream<T> streamSliceSince(long sinceTimeStamp, int offset, int size) {

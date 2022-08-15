@@ -35,7 +35,7 @@ public class EntityKafkaConsumer<V> {
         this.entityConsumerFactoryService = entityConsumerFactoryService;
         this.listenerBeanRegistrationService = listenerBeanRegistrationService;
         this.entityTopicService = entityTopicService;
-        this.resourceName = String.format("{}-{}-{}",
+        this.resourceName = String.format("%s-%s-%s",
                 consumerConfig.getDomainName(),
                 consumerConfig.getPackageName(),
                 consumerConfig.getResourceName()
@@ -66,6 +66,7 @@ public class EntityKafkaConsumer<V> {
                         )
                         .createContainer(topicNameParameters);
 
+        log.info("Listening to topic: " + topicNameParameters.getOrgId() + "." + topicNameParameters.getDomainContext() + "." + topicNameParameters.getResource());
         listenerBeanRegistrationService.registerBean(messageListenerContainer);
 
         return retention;

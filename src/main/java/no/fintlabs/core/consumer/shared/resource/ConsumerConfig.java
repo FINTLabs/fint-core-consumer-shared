@@ -20,8 +20,6 @@ public abstract class ConsumerConfig<T extends FintLinks & Serializable> {
 
     protected abstract String resourceName();
 
-    public abstract Class<RequestFintEvent<T>> getReqestFintEventClass();
-
     public String getDomainName() {
         return domainName().toLowerCase();
     }

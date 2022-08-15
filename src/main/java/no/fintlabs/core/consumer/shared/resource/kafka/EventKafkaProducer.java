@@ -1,6 +1,5 @@
 package no.fintlabs.core.consumer.shared.resource.kafka;
 
-import no.fint.model.resource.FintLinks;
 import no.fintlabs.adapter.models.RequestFintEvent;
 import no.fintlabs.core.consumer.shared.resource.ConsumerConfig;
 import no.fintlabs.kafka.event.EventProducer;
@@ -8,22 +7,20 @@ import no.fintlabs.kafka.event.EventProducerFactory;
 import no.fintlabs.kafka.event.EventProducerRecord;
 import no.fintlabs.kafka.event.topic.EventTopicNameParameters;
 
-import java.io.Serializable;
+public class EventKafkaProducer {
 
-public class EventKafkaProducer<T extends FintLinks & Serializable> {
-
-    private final EventProducer<RequestFintEvent<T>> eventProducer;
+    private final EventProducer<Object> eventProducer;
 
     private final ConsumerConfig consumerConfig;
 
     public EventKafkaProducer(EventProducerFactory eventProducerFactory, ConsumerConfig consumerConfig) {
         this.consumerConfig = consumerConfig;
-        eventProducer = eventProducerFactory.createProducer(consumerConfig.getReqestFintEventClass());
+        this.eventProducer = eventProducerFactory.createProducer(Object.class);
     }
 
-    public void sendEvent(RequestFintEvent<T> event, OperationType operationType) {
+    public void sendEvent(RequestFintEvent<?> event, OperationType operationType) {
 
-        String eventName = String.format("{}-{}-{}-{}-{}",
+        String eventName = String.format("%s-%s-%s-%s-%s",
                 consumerConfig.getDomainName(),
                 consumerConfig.getPackageName(),
                 consumerConfig.getResourceName(),
@@ -31,7 +28,7 @@ public class EventKafkaProducer<T extends FintLinks & Serializable> {
                 "request");
 
         eventProducer.send(
-                EventProducerRecord.<RequestFintEvent<T>>builder()
+                EventProducerRecord.<Object>builder()
                         .topicNameParameters(EventTopicNameParameters
                                 .builder()
                                 .orgId(consumerConfig.getOrgId())
