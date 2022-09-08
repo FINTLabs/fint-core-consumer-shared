@@ -1,6 +1,7 @@
-package no.fintlabs.core.consumer.shared;
+package no.fintlabs.core.consumer.shared.resource.kafka;
 
 import lombok.extern.slf4j.Slf4j;
+import no.fintlabs.core.consumer.shared.resource.ConsumerConfig;
 import no.fintlabs.kafka.common.ListenerBeanRegistrationService;
 import no.fintlabs.kafka.common.OffsetSeekingTrigger;
 import no.fintlabs.kafka.entity.EntityConsumerConfiguration;
@@ -17,7 +18,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 @Slf4j
-public abstract class KafkaConsumer<V> {
+public class EntityKafkaConsumer<V> {
 
     private final EntityConsumerFactoryService entityConsumerFactoryService;
     private final ListenerBeanRegistrationService listenerBeanRegistrationService;
@@ -25,14 +26,20 @@ public abstract class KafkaConsumer<V> {
     private final String resourceName;
     private final OffsetSeekingTrigger resetTrigger;
 
-    public KafkaConsumer(
-            String resourceName, EntityConsumerFactoryService entityConsumerFactoryService,
+    public EntityKafkaConsumer(
+            EntityConsumerFactoryService entityConsumerFactoryService,
             ListenerBeanRegistrationService listenerBeanRegistrationService,
-            EntityTopicService entityTopicService) {
+            EntityTopicService entityTopicService,
+            ConsumerConfig consumerConfig
+    ) {
         this.entityConsumerFactoryService = entityConsumerFactoryService;
         this.listenerBeanRegistrationService = listenerBeanRegistrationService;
         this.entityTopicService = entityTopicService;
-        this.resourceName = resourceName;
+        this.resourceName = String.format("%s-%s-%s",
+                consumerConfig.getDomainName(),
+                consumerConfig.getPackageName(),
+                consumerConfig.getResourceName()
+        );
         resetTrigger = new OffsetSeekingTrigger();
     }
 
@@ -59,6 +66,7 @@ public abstract class KafkaConsumer<V> {
                         )
                         .createContainer(topicNameParameters);
 
+        log.info("Listening to topic: " + topicNameParameters.getOrgId() + "." + topicNameParameters.getDomainContext() + "." + topicNameParameters.getResource());
         listenerBeanRegistrationService.registerBean(messageListenerContainer);
 
         return retention;
