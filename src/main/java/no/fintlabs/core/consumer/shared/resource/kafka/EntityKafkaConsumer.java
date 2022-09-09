@@ -49,6 +49,8 @@ public class EntityKafkaConsumer<V> {
                 .resource(resourceName)
                 .build();
 
+        entityTopicService.ensureTopic(topicNameParameters, 0);
+
         long retention = getRetention(topicNameParameters);
         // TODO: 11/03/2022 What to do if fails to get retention
         // TODO: 11/05/2022 What if the adapter re-register and the retention change
