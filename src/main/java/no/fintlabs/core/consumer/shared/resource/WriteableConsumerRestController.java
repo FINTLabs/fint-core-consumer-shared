@@ -43,8 +43,8 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
 
     @PostMapping
     public ResponseEntity postBehandling(
-            @RequestHeader(name = HeaderConstants.ORG_ID) String orgId,
-            @RequestHeader(name = HeaderConstants.CLIENT) String client,
+            @RequestHeader(name = HeaderConstants.ORG_ID, required = false) String orgId,
+            @RequestHeader(name = HeaderConstants.CLIENT, required = false) String client,
             @RequestBody T body,
             @RequestParam(name = "validate", required = false) boolean validate
     ) {
@@ -70,8 +70,8 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
     @PutMapping("/systemid/{id:.+}")
     public ResponseEntity putBehandlingBySystemId(
             @PathVariable String id,
-            @RequestHeader(name = HeaderConstants.ORG_ID) String orgId,
-            @RequestHeader(name = HeaderConstants.CLIENT) String client,
+            @RequestHeader(name = HeaderConstants.ORG_ID, required = false) String orgId,
+            @RequestHeader(name = HeaderConstants.CLIENT, required = false) String client,
             @RequestBody T body
     ) {
         log.debug("putBehandlingBySystemId {}, OrgId: {}, Client: {}", id, orgId, client);
