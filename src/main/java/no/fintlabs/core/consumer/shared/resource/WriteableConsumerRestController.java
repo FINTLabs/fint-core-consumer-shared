@@ -1,5 +1,7 @@
 package no.fintlabs.core.consumer.shared.resource;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.model.resource.FintLinks;
 import no.fint.relations.FintLinker;
@@ -60,7 +62,7 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
 //
 //        statusCache.put(event.getCorrId(), event);
 
-        RequestFintEvent<T> event = createRequestEvent(body, RequestFintEvent.OperationType.CREATE);
+        RequestFintEvent event = createRequestEvent(body, RequestFintEvent.OperationType.CREATE);
         eventKafkaProducer.sendEvent(event, EventKafkaProducer.OperationType.CREATE);
 
         URI location = UriComponentsBuilder.fromUriString(fintLinks.self()).path("status/{id}").buildAndExpand(event.getCorrId()).toUri();
@@ -88,15 +90,15 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
 //
 //        statusCache.put(event.getCorrId(), event);
 
-        RequestFintEvent<T> event = createRequestEvent(body, RequestFintEvent.OperationType.UPDATE);
+        RequestFintEvent event = createRequestEvent(body, RequestFintEvent.OperationType.UPDATE);
         eventKafkaProducer.sendEvent(event, EventKafkaProducer.OperationType.UPDATE);
 
         URI location = UriComponentsBuilder.fromUriString(fintLinks.self()).path("status/{id}").buildAndExpand(event.getCorrId()).toUri();
         return ResponseEntity.status(HttpStatus.ACCEPTED).location(location).build();
     }
 
-    private RequestFintEvent<T> createRequestEvent(T body, RequestFintEvent.OperationType operationType) {
-        RequestFintEvent<T> event = new RequestFintEvent<>();
+    private RequestFintEvent createRequestEvent(T body, RequestFintEvent.OperationType operationType) {
+        RequestFintEvent event = new RequestFintEvent();
         event.setCorrId(UUID.randomUUID().toString());
         event.setOrgId(consumerConfig.getOrgId());
         event.setDomainName(consumerConfig.getDomainName());
@@ -104,8 +106,17 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
         event.setResourceName(consumerConfig.getResourceName());
         event.setOperation(operationType);
         event.setCreated(System.currentTimeMillis());
-        event.setValue(body);
+        event.setValue(convertToJson(body));
         return event;
+    }
+
+    private String convertToJson(T body) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.writer().writeValueAsString(body);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

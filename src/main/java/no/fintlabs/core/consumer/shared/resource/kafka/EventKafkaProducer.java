@@ -24,7 +24,7 @@ public class EventKafkaProducer {
         this.eventTopicService = eventTopicService;
     }
 
-    public void sendEvent(RequestFintEvent<?> event, OperationType operationType) {
+    public void sendEvent(RequestFintEvent event, OperationType operationType) {
 
         String eventName = String.format("%s-%s-%s-%s-%s",
                 consumerConfig.getDomainName(),
