@@ -48,11 +48,11 @@ public abstract class CacheService<T extends FintLinks & Serializable> {
     }
 
     public Stream<T> streamSliceSince(long sinceTimeStamp, int offset, int size) {
-        return null;
+        return cache.streamSliceSince(sinceTimeStamp, offset, size);
     }
 
     public Stream<T> streamSlice(int offset, int size) {
-        return null;
+        return cache.streamSlice(offset, size);
     }
 
     public Stream<T> streamSince(long sinceTimeStamp) {
