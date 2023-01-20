@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import no.fint.model.resource.FintLinks;
 import no.fint.relations.FintLinker;
 import no.fintlabs.adapter.models.RequestFintEvent;
+import no.fintlabs.adapter.models.ResponseFintEvent;
+import no.fintlabs.core.consumer.shared.resource.event.EventResponseCacheService;
 import no.fintlabs.core.consumer.shared.resource.kafka.EventKafkaProducer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,24 +25,40 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
 
     private final EventKafkaProducer eventKafkaProducer;
 
+    private final EventResponseCacheService eventResponseCacheService;
+
     public WriteableConsumerRestController(
             CacheService<T> cacheService,
             FintLinker<T> fintLinker,
             ConsumerConfig consumerConfig,
-            EventKafkaProducer eventKafkaProducer) {
+            EventKafkaProducer eventKafkaProducer, EventResponseCacheService eventResponseCacheService) {
         super(cacheService, fintLinker);
         this.consumerConfig = consumerConfig;
         this.eventKafkaProducer = eventKafkaProducer;
+        this.eventResponseCacheService = eventResponseCacheService;
     }
 
-//    @GetMapping("/status/{id}")
-//    public ResponseEntity getStatus(
-//            @PathVariable String id,
-//            @RequestHeader(HeaderConstants.ORG_ID) String orgId,
-//            @RequestHeader(HeaderConstants.CLIENT) String client) {
-//        log.debug("/status/{} for {} from {}", id, orgId, client);
-//        return statusCache.handleStatusRequest(id, orgId, linker, BehandlingResource.class);
-//}
+    @GetMapping("/status/{id}")
+    public ResponseEntity getStatus(
+            @PathVariable String id,
+            @RequestHeader(HeaderConstants.ORG_ID) String orgId,
+            @RequestHeader(HeaderConstants.CLIENT) String client) {
+        log.debug("/status/{} for {} from {}", id, orgId, client);
+        ResponseFintEvent responseFintEvent = eventResponseCacheService.get(id);
+        if (responseFintEvent == null) {
+            return ResponseEntity.accepted().build();
+        } else if (responseFintEvent.isFailed()) {
+            log.info("EventResponse corrId: {} has failed: {}", id, responseFintEvent.getErrorMessage());
+            return ResponseEntity.internalServerError().body(responseFintEvent.getErrorMessage());
+        } else if (responseFintEvent.isRejected()) {
+            log.info("EventResponse corrId: {} is rejected: {}", id, responseFintEvent.getErrorMessage());
+            return ResponseEntity.badRequest().body(responseFintEvent.getRejectReason());
+        } else {
+            // Todo Burde request/response inneholde selflink?
+            // Todo Burde man sjekke om entity er oppdatert.
+            return ResponseEntity.created(URI.create("")).build();
+        }
+    }
 
 
     @PostMapping
