@@ -3,12 +3,11 @@ package no.fintlabs.core.consumer.shared.resource.event;
 import lombok.extern.slf4j.Slf4j;
 import no.fintlabs.adapter.models.ResponseFintEvent;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
-@Service
 public class EventResponseCacheService {
 
     private static final int MAX_HOURS_OLD = 4;

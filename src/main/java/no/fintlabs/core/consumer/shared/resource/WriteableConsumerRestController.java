@@ -8,6 +8,7 @@ import no.fint.relations.FintLinker;
 import no.fintlabs.adapter.models.RequestFintEvent;
 import no.fintlabs.adapter.models.ResponseFintEvent;
 import no.fintlabs.core.consumer.shared.resource.event.EventResponseCacheService;
+import no.fintlabs.core.consumer.shared.resource.event.EventResponseKafkaConsumer;
 import no.fintlabs.core.consumer.shared.resource.kafka.EventKafkaProducer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,17 +26,18 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
 
     private final EventKafkaProducer eventKafkaProducer;
 
-    private final EventResponseCacheService eventResponseCacheService;
+    private final EventResponseKafkaConsumer eventResponseKafkaConsumer;
 
     public WriteableConsumerRestController(
             CacheService<T> cacheService,
             FintLinker<T> fintLinker,
             ConsumerConfig consumerConfig,
-            EventKafkaProducer eventKafkaProducer, EventResponseCacheService eventResponseCacheService) {
+            EventKafkaProducer eventKafkaProducer,
+            EventResponseKafkaConsumer eventResponseKafkaConsumer) {
         super(cacheService, fintLinker);
         this.consumerConfig = consumerConfig;
         this.eventKafkaProducer = eventKafkaProducer;
-        this.eventResponseCacheService = eventResponseCacheService;
+        this.eventResponseKafkaConsumer = eventResponseKafkaConsumer;
     }
 
     @GetMapping("/status/{id}")
@@ -44,7 +46,7 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
             @RequestHeader(HeaderConstants.ORG_ID) String orgId,
             @RequestHeader(HeaderConstants.CLIENT) String client) {
         log.debug("/status/{} for {} from {}", id, orgId, client);
-        ResponseFintEvent responseFintEvent = eventResponseCacheService.get(id);
+        ResponseFintEvent responseFintEvent = eventResponseKafkaConsumer.getCache().get(id);
         if (responseFintEvent == null) {
             return ResponseEntity.accepted().build();
         } else if (responseFintEvent.isFailed()) {
