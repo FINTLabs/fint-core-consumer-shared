@@ -32,8 +32,8 @@ public abstract class EventResponseKafkaConsumer {
     private void init() {
         EventTopicNamePatternParameters topicPatternParameter = EventTopicNamePatternParameters
                 .builder()
-                .orgId(FormattedTopicComponentPattern.anyOf(consumerConfig.getOrgId()))       // Optional if set as application property
-                .domainContext(FormattedTopicComponentPattern.anyOf("fint-core"))  // Optional if set as application property
+                .orgId(FormattedTopicComponentPattern.anyOf(consumerConfig.getOrgId()))
+                .domainContext(FormattedTopicComponentPattern.anyOf("fint-core"))
                 .eventName(ValidatedTopicComponentPattern.anyOf(
                         createEventName(EventKafkaProducer.OperationType.CREATE),
                         createEventName(EventKafkaProducer.OperationType.UPDATE)
