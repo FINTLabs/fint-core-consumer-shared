@@ -1,9 +1,10 @@
 plugins {
-    id 'org.springframework.boot' version '2.7.5' apply false
+    id 'org.springframework.boot' version '2.7.7' apply false
     id 'io.spring.dependency-management' version '1.1.0'
     id 'groovy'
     id 'maven-publish'
     id 'java-library'
+    id 'com.github.ben-manes.versions' version '0.44.0'
 }
 
 group = 'no.fintlabs'
@@ -56,13 +57,13 @@ dependencies {
 
 
     implementation 'no.fintlabs:fint-core-cache:0.2.0'
-    implementation 'no.fintlabs:fint-kafka:2.3.0'
-    implementation 'no.fint:fint-event-model:3.0.1'
+    implementation 'no.fintlabs:fint-kafka:2.4.0'
+    implementation 'no.fint:fint-event-model:3.0.2'
     implementation('no.fint:fint-relations:2.2.1') {
         exclude group: 'com.github.springfox.loader'
         exclude group: 'org.springframework.boot'
     }
-    implementation 'no.fintlabs:fint-core-infra-models:1.0.0-rc-14'
+    implementation 'no.fintlabs:fint-core-infra-models:1.0.0-rc-16'
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
@@ -72,8 +73,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'cglib:cglib-nodep:3.3.0'
-    testImplementation 'org.spockframework:spock-spring:2.3-groovy-3.0'
-    testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
+    testImplementation 'org.spockframework:spock-spring:2.4-M1-groovy-4.0'
+    testImplementation 'org.spockframework:spock-core:2.4-M1-groovy-4.0'
 
     //testImplementation 'org.springframework.kafka:spring-kafka-test'
     //testImplementation 'org.springframework.security:spring-security-test'

@@ -8,7 +8,7 @@ import no.fintlabs.kafka.event.EventProducerRecord;
 import no.fintlabs.kafka.event.topic.EventTopicNameParameters;
 import no.fintlabs.kafka.event.topic.EventTopicService;
 
-public class EventKafkaProducer {
+public abstract class EventKafkaProducer {
 
     private static final int RETENTION_TIME_MS = 172800000;
 

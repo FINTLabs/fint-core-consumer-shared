@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 @Slf4j
-public class EntityKafkaConsumer<V> {
+public abstract class EntityKafkaConsumer<V> {
 
     private final EntityConsumerFactoryService entityConsumerFactoryService;
     private final ListenerBeanRegistrationService listenerBeanRegistrationService;
