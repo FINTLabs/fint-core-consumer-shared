@@ -54,6 +54,7 @@ dependencies {
     //implementation 'io.netty:netty-resolver-dns-native-macos:4.1.72.Final:osx-aarch_64'
     implementation 'commons-codec:commons-codec:1.15'
     implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'no.fintlabs:fint-antlr:1.1.0'
 
 
     implementation 'no.fintlabs:fint-core-cache:0.2.0'
