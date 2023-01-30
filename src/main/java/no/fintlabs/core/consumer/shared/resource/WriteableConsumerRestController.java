@@ -3,11 +3,11 @@ package no.fintlabs.core.consumer.shared.resource;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import no.fint.antlr.FintFilterService;
 import no.fint.model.resource.FintLinks;
 import no.fint.relations.FintLinker;
 import no.fintlabs.adapter.models.RequestFintEvent;
 import no.fintlabs.adapter.models.ResponseFintEvent;
-import no.fintlabs.core.consumer.shared.resource.event.EventResponseCacheService;
 import no.fintlabs.core.consumer.shared.resource.event.EventResponseKafkaConsumer;
 import no.fintlabs.core.consumer.shared.resource.kafka.EventKafkaProducer;
 import org.springframework.http.HttpStatus;
@@ -33,8 +33,9 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
             FintLinker<T> fintLinker,
             ConsumerConfig consumerConfig,
             EventKafkaProducer eventKafkaProducer,
-            EventResponseKafkaConsumer eventResponseKafkaConsumer) {
-        super(cacheService, fintLinker);
+            EventResponseKafkaConsumer eventResponseKafkaConsumer,
+            FintFilterService oDataFilterService) {
+        super(cacheService, fintLinker, oDataFilterService);
         this.consumerConfig = consumerConfig;
         this.eventKafkaProducer = eventKafkaProducer;
         this.eventResponseKafkaConsumer = eventResponseKafkaConsumer;
