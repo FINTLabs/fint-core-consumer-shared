@@ -4,6 +4,7 @@ import no.fint.model.resource.FintLinks;
 import no.fintlabs.cache.Cache;
 import no.fintlabs.cache.CacheManager;
 import no.fintlabs.core.consumer.shared.resource.kafka.EntityKafkaConsumer;
+import no.fintlabs.core.consumer.shared.resource.kafka.KafkaEventLogger;
 
 import java.io.Serializable;
 import java.util.Optional;
@@ -15,6 +16,7 @@ public abstract class CacheService<T extends FintLinks & Serializable> {
     private final Cache<T> cache;
     private final CacheManager cacheManager;
     private final EntityKafkaConsumer<T> entityKafkaConsumer;
+    protected final KafkaEventLogger eventLogger;
 
     public CacheService(ConsumerConfig<T> consumerConfig,
                         CacheManager cacheManager,
@@ -22,6 +24,7 @@ public abstract class CacheService<T extends FintLinks & Serializable> {
         this.consumerConfig = consumerConfig;
         this.cacheManager = cacheManager;
         this.entityKafkaConsumer = entityKafkaConsumer;
+        this.eventLogger = new KafkaEventLogger(consumerConfig.getResourceName());
 
         cache = initializeCache(cacheManager, consumerConfig, consumerConfig.getResourceName());
     }
