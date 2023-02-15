@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.fint.antlr.FintFilterService;
 import no.fint.model.resource.FintLinks;
 import no.fint.relations.FintLinker;
+import no.fintlabs.adapter.models.OperationType;
 import no.fintlabs.adapter.models.RequestFintEvent;
 import no.fintlabs.adapter.models.ResponseFintEvent;
 import no.fintlabs.core.consumer.shared.resource.event.EventResponseKafkaConsumer;
@@ -83,7 +84,7 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
 //
 //        statusCache.put(event.getCorrId(), event);
 
-        RequestFintEvent event = createRequestEvent(body, RequestFintEvent.OperationType.CREATE);
+        RequestFintEvent event = createRequestEvent(body, OperationType.CREATE);
         eventKafkaProducer.sendEvent(event, EventKafkaProducer.OperationType.CREATE);
 
         URI location = UriComponentsBuilder.fromUriString(fintLinks.self()).path("status/{id}").buildAndExpand(event.getCorrId()).toUri();
@@ -111,21 +112,21 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
 //
 //        statusCache.put(event.getCorrId(), event);
 
-        RequestFintEvent event = createRequestEvent(body, RequestFintEvent.OperationType.UPDATE);
+        RequestFintEvent event = createRequestEvent(body, OperationType.UPDATE);
         eventKafkaProducer.sendEvent(event, EventKafkaProducer.OperationType.UPDATE);
 
         URI location = UriComponentsBuilder.fromUriString(fintLinks.self()).path("status/{id}").buildAndExpand(event.getCorrId()).toUri();
         return ResponseEntity.status(HttpStatus.ACCEPTED).location(location).build();
     }
 
-    private RequestFintEvent createRequestEvent(T body, RequestFintEvent.OperationType operationType) {
+    private RequestFintEvent createRequestEvent(T body, OperationType operationType) {
         RequestFintEvent event = new RequestFintEvent();
         event.setCorrId(UUID.randomUUID().toString());
         event.setOrgId(consumerConfig.getOrgId());
         event.setDomainName(consumerConfig.getDomainName());
         event.setPackageName(consumerConfig.getPackageName());
         event.setResourceName(consumerConfig.getResourceName());
-        event.setOperation(operationType);
+        event.setOperationType(operationType);
         event.setCreated(System.currentTimeMillis());
         event.setValue(convertToJson(body));
         return event;
