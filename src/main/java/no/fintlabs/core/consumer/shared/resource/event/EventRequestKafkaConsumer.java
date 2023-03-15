@@ -1,6 +1,6 @@
 package no.fintlabs.core.consumer.shared.resource.event;
 
-import no.fintlabs.adapter.models.ResponseFintEvent;
+import no.fintlabs.adapter.models.RequestFintEvent;
 import no.fintlabs.core.consumer.shared.resource.ConsumerConfig;
 import no.fintlabs.core.consumer.shared.resource.kafka.EventKafkaProducer;
 import no.fintlabs.kafka.common.topic.pattern.FormattedTopicComponentPattern;
@@ -12,21 +12,21 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import javax.annotation.PostConstruct;
 
-public abstract class EventResponseKafkaConsumer {
+public abstract class EventRequestKafkaConsumer {
 
     private final EventConsumerFactoryService eventConsumerFactoryService;
     private final ConsumerConfig<?> consumerConfig;
-    private final EventCache<ResponseFintEvent<?>> eventResponseCache;
+    private final EventCache<RequestFintEvent> eventRequestCache;
 
-    public EventResponseKafkaConsumer(EventConsumerFactoryService eventConsumerFactoryService,
-                                      ConsumerConfig<?> consumerConfig) {
+    public EventRequestKafkaConsumer(EventConsumerFactoryService eventConsumerFactoryService,
+                                     ConsumerConfig<?> consumerConfig) {
         this.eventConsumerFactoryService = eventConsumerFactoryService;
         this.consumerConfig = consumerConfig;
-        this.eventResponseCache = new EventCache<>();
+        this.eventRequestCache = new EventCache<>();
     }
 
-    public EventCache<ResponseFintEvent<?>> getCache() {
-        return eventResponseCache;
+    public EventCache<RequestFintEvent> getCache() {
+        return eventRequestCache;
     }
 
     @PostConstruct
@@ -42,7 +42,7 @@ public abstract class EventResponseKafkaConsumer {
                 .build();
 
         eventConsumerFactoryService.createFactory(
-                ResponseFintEvent.class,
+                RequestFintEvent.class,
                 this::consumeEvent,
                 EventConsumerConfiguration
                         .builder()
@@ -52,8 +52,8 @@ public abstract class EventResponseKafkaConsumer {
 
     }
 
-    private void consumeEvent(ConsumerRecord<String, ResponseFintEvent> consumerRecord) {
-        eventResponseCache.add(consumerRecord.value());
+    private void consumeEvent(ConsumerRecord<String, RequestFintEvent> consumerRecord) {
+        eventRequestCache.add(consumerRecord.value());
     }
 
     private String createEventName(EventKafkaProducer.OperationType operationType) {
@@ -62,7 +62,7 @@ public abstract class EventResponseKafkaConsumer {
                 consumerConfig.getPackageName(),
                 consumerConfig.getResourceName(),
                 operationType == EventKafkaProducer.OperationType.CREATE ? "create" : "update",
-                "response");
+                "request");
     }
 
 }

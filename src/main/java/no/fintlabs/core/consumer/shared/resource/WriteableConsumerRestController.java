@@ -9,6 +9,7 @@ import no.fint.relations.FintLinker;
 import no.fintlabs.adapter.models.OperationType;
 import no.fintlabs.adapter.models.RequestFintEvent;
 import no.fintlabs.adapter.models.ResponseFintEvent;
+import no.fintlabs.core.consumer.shared.resource.event.EventRequestKafkaConsumer;
 import no.fintlabs.core.consumer.shared.resource.event.EventResponseKafkaConsumer;
 import no.fintlabs.core.consumer.shared.resource.kafka.EventKafkaProducer;
 import org.springframework.http.HttpStatus;
@@ -24,32 +25,38 @@ import java.util.UUID;
 public abstract class WriteableConsumerRestController<T extends FintLinks & Serializable> extends ConsumerRestController<T> {
 
     private final ConsumerConfig consumerConfig;
-
     private final EventKafkaProducer eventKafkaProducer;
-
     private final EventResponseKafkaConsumer eventResponseKafkaConsumer;
+    private final EventRequestKafkaConsumer eventRequestKafkaConsumer;
 
     public WriteableConsumerRestController(
             CacheService<T> cacheService,
             FintLinker<T> fintLinker,
-            ConsumerConfig consumerConfig,
+            ConsumerConfig<?> consumerConfig,
             EventKafkaProducer eventKafkaProducer,
             EventResponseKafkaConsumer eventResponseKafkaConsumer,
-            FintFilterService oDataFilterService) {
+            FintFilterService oDataFilterService,
+            EventRequestKafkaConsumer eventRequestKafkaConsumer) {
         super(cacheService, fintLinker, oDataFilterService);
         this.consumerConfig = consumerConfig;
         this.eventKafkaProducer = eventKafkaProducer;
         this.eventResponseKafkaConsumer = eventResponseKafkaConsumer;
+        this.eventRequestKafkaConsumer = eventRequestKafkaConsumer;
     }
 
     @GetMapping("/status/{id}")
-    public ResponseEntity getStatus(
+    public ResponseEntity<?> getStatus(
             @PathVariable String id,
             @RequestHeader(HeaderConstants.ORG_ID) String orgId,
             @RequestHeader(HeaderConstants.CLIENT) String client) {
+
         log.debug("/status/{} for {} from {}", id, orgId, client);
-        ResponseFintEvent responseFintEvent = eventResponseKafkaConsumer.getCache().get(id);
-        if (responseFintEvent == null) {
+        ResponseFintEvent<?> responseFintEvent = eventResponseKafkaConsumer.getCache().get(id);
+        RequestFintEvent requestFintEvent = eventRequestKafkaConsumer.getCache().get(id);
+
+        if (responseFintEvent == null && requestFintEvent == null) {
+            return ResponseEntity.notFound().build();
+        } else if (responseFintEvent == null) {
             return ResponseEntity.accepted().build();
         } else if (responseFintEvent.isFailed()) {
             log.info("EventResponse corrId: {} has failed: {}", id, responseFintEvent.getErrorMessage());
@@ -63,7 +70,6 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
             return ResponseEntity.created(URI.create("")).build();
         }
     }
-
 
     @PostMapping
     public ResponseEntity postBehandling(
