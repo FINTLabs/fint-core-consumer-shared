@@ -1,7 +1,5 @@
 package no.fintlabs.core.consumer.shared.resource.exception;
-
 import no.fint.antlr.exception.FilterException;
-import no.fint.cache.exceptions.CacheNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
