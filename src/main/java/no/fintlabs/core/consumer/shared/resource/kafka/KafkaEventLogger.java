@@ -13,6 +13,7 @@ public class KafkaEventLogger {
     private ScheduledThreadPoolExecutor executor;
     private Runnable task;
     private AtomicInteger eventCount;
+    private long startTimer;
     private int previousCount;
 
     public KafkaEventLogger(String resourceType) {
@@ -21,7 +22,10 @@ public class KafkaEventLogger {
         executor = new ScheduledThreadPoolExecutor(1);
         task = () -> {
             if (eventCount.get() == previousCount) {
-                log.info(resourceType + " recieved: " + eventCount);
+                long endTimer = System.currentTimeMillis();
+                String timeTaken = getTimeFormat(endTimer - startTimer);
+
+                log.info(resourceType + " recieved: " + eventCount + " time taken: " + timeTaken);
                 previousCount = 0;
                 eventCount.set(0);
             } else {
@@ -34,8 +38,17 @@ public class KafkaEventLogger {
     public synchronized void logDataRecieved() {
         if (eventCount.getAndIncrement() == 0) {
             log.info("Started recieving " + resourceType + "...");
+            startTimer = System.currentTimeMillis();
             executor.schedule(task, 3, TimeUnit.SECONDS);
         }
+    }
+
+    private String getTimeFormat(long milliseconds) {
+        long hours = milliseconds / 1000 / 60 / 60;
+        long minutes = milliseconds / 1000 / 60 % 60;
+        long seconds = milliseconds / 1000 % 60;
+
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
 }
