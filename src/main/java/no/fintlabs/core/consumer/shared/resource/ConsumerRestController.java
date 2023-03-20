@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 @Slf4j
 public abstract class ConsumerRestController<T extends FintLinks & Serializable> {
 
-    private final CacheService<T> cacheService;
+    protected final CacheService<T> cacheService;
     protected final FintLinker<T> fintLinks;
     private final FintFilterService oDataFilterService;
 

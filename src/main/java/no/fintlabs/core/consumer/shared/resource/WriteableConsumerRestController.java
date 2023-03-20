@@ -18,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -48,22 +49,25 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
             @RequestHeader(HeaderConstants.ORG_ID) String orgId,
             @RequestHeader(HeaderConstants.CLIENT) String client) {
         log.debug("/status/{} for {} from {}", id, orgId, client);
-        ResponseFintEvent responseFintEvent = eventResponseKafkaConsumer.getCache().get(id);
-        if (responseFintEvent == null) {
+        Optional<ResponseFintEvent> responseFintEvent = eventResponseKafkaConsumer.getCache().getResponse(id);
+        if (responseFintEvent.isEmpty()) {
             return ResponseEntity.accepted().build();
-        } else if (responseFintEvent.isFailed()) {
-            log.info("EventResponse corrId: {} has failed: {}", id, responseFintEvent.getErrorMessage());
-            return ResponseEntity.internalServerError().body(responseFintEvent.getErrorMessage());
-        } else if (responseFintEvent.isRejected()) {
-            log.info("EventResponse corrId: {} is rejected: {}", id, responseFintEvent.getErrorMessage());
-            return ResponseEntity.badRequest().body(responseFintEvent.getRejectReason());
+        } else if (responseFintEvent.get().isFailed()) {
+            log.info("EventResponse corrId: {} has failed: {}", id, responseFintEvent.get().getErrorMessage());
+            return ResponseEntity.internalServerError().body(responseFintEvent.get().getErrorMessage());
+        } else if (responseFintEvent.get().isRejected()) {
+            log.info("EventResponse corrId: {} is rejected: {}", id, responseFintEvent.get().getErrorMessage());
+            return ResponseEntity.badRequest().body(responseFintEvent.get().getRejectReason());
         } else {
-            // Todo Burde request/response inneholde selflink?
-            // Todo Burde man sjekke om entity er oppdatert.
-            return ResponseEntity.created(URI.create("")).build();
+            Object entity = eventResponseKafkaConsumer.getCache().getEntity(id);
+            if (entity == null) {
+                log.warn("Get status, have response but no updated entity for " + id);
+                return ResponseEntity.accepted().build();
+            } else {
+                return ResponseEntity.created(URI.create("")).body(entity);
+            }
         }
     }
-
 
     @PostMapping
     public ResponseEntity postBehandling(

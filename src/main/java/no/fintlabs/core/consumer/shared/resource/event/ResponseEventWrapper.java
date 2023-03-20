@@ -1,17 +1,20 @@
 package no.fintlabs.core.consumer.shared.resource.event;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import no.fintlabs.adapter.models.ResponseFintEvent;
 
 import java.util.Date;
 
-@Data
+@Getter
 public class ResponseEventWrapper {
-    private ResponseFintEvent responseFintEvent;
+
+    @Setter private ResponseFintEvent responseFintEvent;
+    @Setter private Object entity;
     private Date created;
 
-    public ResponseEventWrapper(ResponseFintEvent responseFintEvent) {
-        this.responseFintEvent = responseFintEvent;
+    public ResponseEventWrapper() {
         created = new Date();
     }
 }
