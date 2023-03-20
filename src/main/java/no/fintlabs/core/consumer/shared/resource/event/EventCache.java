@@ -1,32 +1,32 @@
 package no.fintlabs.core.consumer.shared.resource.event;
 
 import lombok.extern.slf4j.Slf4j;
-import no.fintlabs.adapter.models.ResponseFintEvent;
+import no.fintlabs.adapter.models.FintEvent;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class EventResponseCacheService {
+public class EventCache<T extends FintEvent> {
 
     private static final int MAX_HOURS_OLD = 4;
     private static final int MILI_TO_HOURS = 60 * 60 * 1000;
 
-    private final Map<String, ResponseEventWrapper> responses;
+    private final Map<String, EventWrapper<T>> responses;
 
-    public EventResponseCacheService() {
+    public EventCache() {
         this.responses = new HashMap<>();
     }
 
-    public void add(ResponseFintEvent responseFintEvent) {
-        log.info("Adding new response with corrId: {}", responseFintEvent.getCorrId());
-        responses.put(responseFintEvent.getCorrId(), new ResponseEventWrapper(responseFintEvent));
+    public void add(T fintEvent) {
+        log.info("Adding new response with corrId: {}", fintEvent.getCorrId());
+        responses.put(fintEvent.getCorrId(), new EventWrapper<T>(fintEvent));
     }
 
-    public ResponseFintEvent get(String corrId) {
+    public T get(String corrId) {
         if (responses.containsKey(corrId)) {
-            return responses.get(corrId).getResponseFintEvent();
+            return responses.get(corrId).getFintEvent();
         }
         return null;
     }
