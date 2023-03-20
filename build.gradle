@@ -57,7 +57,7 @@ dependencies {
     implementation 'no.fintlabs:fint-antlr:1.1.0'
 
 
-    implementation 'no.fintlabs:fint-core-cache:0-SNAPSHOT'
+    implementation 'no.fintlabs:fint-core-cache:0.3.0'
     implementation 'no.fintlabs:fint-kafka:2.4.0'
     implementation 'no.fint:fint-event-model:3.0.2'
     implementation('no.fint:fint-relations:2.2.1') {
