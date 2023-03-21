@@ -55,8 +55,10 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
         RequestFintEvent requestFintEvent = eventRequestKafkaConsumer.getCache().get(id);
 
         if (responseFintEvent == null && requestFintEvent == null) {
+            log.warn("EventResponse corrId: {} has no matching request!");
             return ResponseEntity.notFound().build();
         } else if (responseFintEvent == null) {
+            log.info("EventResponse corrId: {} has no response yet.");
             return ResponseEntity.accepted().build();
         } else if (responseFintEvent.isFailed()) {
             log.info("EventResponse corrId: {} has failed: {}", id, responseFintEvent.getErrorMessage());
@@ -65,9 +67,14 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
             log.info("EventResponse corrId: {} is rejected: {}", id, responseFintEvent.getErrorMessage());
             return ResponseEntity.badRequest().body(responseFintEvent.getRejectReason());
         } else {
-            // Todo Burde request/response inneholde selflink?
-            // Todo Burde man sjekke om entity er oppdatert.
-            return ResponseEntity.created(URI.create("")).build();
+            Object entity = eventResponseKafkaConsumer.getEntityCache().get(id);
+            if (entity == null) {
+                log.warn("Get status, have response but no updated entity for " + id);
+                return ResponseEntity.accepted().build();
+            } else {
+                log.info("EventResponse corrId: {} is ok.");
+                return ResponseEntity.created(URI.create("")).body(entity);
+            }
         }
     }
 

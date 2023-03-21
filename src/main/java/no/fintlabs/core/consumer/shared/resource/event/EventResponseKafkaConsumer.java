@@ -17,16 +17,22 @@ public abstract class EventResponseKafkaConsumer {
     private final EventConsumerFactoryService eventConsumerFactoryService;
     private final ConsumerConfig<?> consumerConfig;
     private final EventCache<ResponseFintEvent<?>> eventResponseCache;
+    private final EventEntityCache eventEntityCache;
 
     public EventResponseKafkaConsumer(EventConsumerFactoryService eventConsumerFactoryService,
                                       ConsumerConfig<?> consumerConfig) {
         this.eventConsumerFactoryService = eventConsumerFactoryService;
         this.consumerConfig = consumerConfig;
-        this.eventResponseCache = new EventCache<>();
+        eventResponseCache = new EventCache<>();
+        eventEntityCache = new EventEntityCache();
     }
 
     public EventCache<ResponseFintEvent<?>> getCache() {
         return eventResponseCache;
+    }
+
+    public EventEntityCache getEntityCache() {
+        return eventEntityCache;
     }
 
     @PostConstruct
