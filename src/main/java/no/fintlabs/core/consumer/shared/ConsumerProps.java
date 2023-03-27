@@ -13,12 +13,6 @@ public class ConsumerProps {
     @Value("${fint.consumer.org-id}")
     private String orgId;
 
-    @Value("${fint.consumer.domain}")
-    private String domainName;
-
-    @Value("${fint.consumer.package}")
-    private String packageName;
-
 //    @Value("${fint.consumer.override-org-id:false}")
 //    private boolean overrideOrgId;
 //

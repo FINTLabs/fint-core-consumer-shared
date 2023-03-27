@@ -14,14 +14,18 @@ public abstract class ConsumerConfig<T extends FintLinks & Serializable> {
         this.consumerProps = consumerProps;
     }
 
+    protected abstract String domainName();
+
+    protected abstract String packageName();
+
     protected abstract String resourceName();
 
     public String getDomainName() {
-        return consumerProps.getDomainName().toLowerCase();
+        return domainName().toLowerCase();
     }
 
     public String getPackageName() {
-        return consumerProps.getPackageName().toLowerCase();
+        return packageName().toLowerCase();
     }
 
     public String getResourceName() {
