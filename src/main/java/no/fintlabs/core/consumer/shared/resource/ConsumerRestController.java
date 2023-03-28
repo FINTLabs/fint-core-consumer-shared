@@ -7,11 +7,9 @@ import no.fint.model.resource.AbstractCollectionResources;
 import no.fint.model.resource.FintLinks;
 import no.fint.relations.FintLinker;
 import no.fintlabs.core.consumer.shared.EntityNotFoundException;
+import no.fintlabs.core.consumer.shared.resource.exception.FintExceptionHandler;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -19,6 +17,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Slf4j
+@ControllerAdvice(basePackageClasses = FintExceptionHandler.class)
 public abstract class ConsumerRestController<T extends FintLinks & Serializable> {
 
     private final CacheService<T> cacheService;
@@ -144,50 +143,4 @@ public abstract class ConsumerRestController<T extends FintLinks & Serializable>
 //        return null;
     }
 
-    //    //
-//    // Exception handlers
-//    //
-//    @ExceptionHandler(FilterException.class)
-//    public ResponseEntity handleFilterException(FilterException e) {
-//        return ResponseEntity.badRequest().body(e.getMessage());
-//    }
-//    @ExceptionHandler(EventResponseException.class)
-//    public ResponseEntity handleEventResponseException(EventResponseException e) {
-//        return ResponseEntity.status(e.getStatus()).body(e.getResponse());
-//    }
-//
-//    @ExceptionHandler(UpdateEntityMismatchException.class)
-//    public ResponseEntity handleUpdateEntityMismatch(Exception e) {
-//        return ResponseEntity.badRequest().body(ErrorResponse.of(e));
-//    }
-//
-//    @ExceptionHandler(EntityNotFoundException.class)
-//    public ResponseEntity handleEntityNotFound(Exception e) {
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.of(e));
-//    }
-//
-//    @ExceptionHandler(CreateEntityMismatchException.class)
-//    public ResponseEntity handleCreateEntityMismatch(Exception e) {
-//        return ResponseEntity.badRequest().body(ErrorResponse.of(e));
-//    }
-//
-//    @ExceptionHandler(EntityFoundException.class)
-//    public ResponseEntity handleEntityFound(Exception e) {
-//        return ResponseEntity.status(HttpStatus.FOUND).body(ErrorResponse.of(e));
-//    }
-//
-//    @ExceptionHandler(CacheDisabledException.class)
-//    public ResponseEntity handleBadRequest(Exception e) {
-//        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ErrorResponse.of(e));
-//    }
-//
-//    @ExceptionHandler(UnknownHostException.class)
-//    public ResponseEntity handleUnkownHost(Exception e) {
-//        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ErrorResponse.of(e));
-//    }
-//
-//    @ExceptionHandler(CacheNotFoundException.class)
-//    public ResponseEntity handleCacheNotFound(Exception e) {
-//        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ErrorResponse.of(e));
-//    }
 }
