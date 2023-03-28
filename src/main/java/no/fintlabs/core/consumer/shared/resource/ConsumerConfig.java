@@ -1,7 +1,6 @@
 package no.fintlabs.core.consumer.shared.resource;
 
 import no.fint.model.resource.FintLinks;
-import no.fintlabs.adapter.models.RequestFintEvent;
 import no.fintlabs.core.consumer.shared.ConsumerProps;
 
 import java.io.Serializable;
@@ -14,18 +13,14 @@ public abstract class ConsumerConfig<T extends FintLinks & Serializable> {
         this.consumerProps = consumerProps;
     }
 
-    protected abstract String domainName();
-
-    protected abstract String packageName();
-
     protected abstract String resourceName();
 
     public String getDomainName() {
-        return domainName().toLowerCase();
+        return consumerProps.getDomainName().toLowerCase();
     }
 
     public String getPackageName() {
-        return packageName().toLowerCase();
+        return consumerProps.getPackageName().toLowerCase();
     }
 
     public String getResourceName() {
