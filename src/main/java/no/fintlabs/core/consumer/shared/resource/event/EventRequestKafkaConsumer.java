@@ -1,8 +1,8 @@
 package no.fintlabs.core.consumer.shared.resource.event;
 
+import no.fintlabs.adapter.models.OperationType;
 import no.fintlabs.adapter.models.RequestFintEvent;
 import no.fintlabs.core.consumer.shared.resource.ConsumerConfig;
-import no.fintlabs.core.consumer.shared.resource.kafka.EventKafkaProducer;
 import no.fintlabs.kafka.common.topic.pattern.FormattedTopicComponentPattern;
 import no.fintlabs.kafka.common.topic.pattern.ValidatedTopicComponentPattern;
 import no.fintlabs.kafka.event.EventConsumerConfiguration;
@@ -36,8 +36,8 @@ public abstract class EventRequestKafkaConsumer {
                 .orgId(FormattedTopicComponentPattern.anyOf(consumerConfig.getOrgId()))
                 .domainContext(FormattedTopicComponentPattern.anyOf("fint-core"))
                 .eventName(ValidatedTopicComponentPattern.anyOf(
-                        createEventName(EventKafkaProducer.OperationType.CREATE),
-                        createEventName(EventKafkaProducer.OperationType.UPDATE)
+                        createEventName(OperationType.CREATE),
+                        createEventName(OperationType.UPDATE)
                 ))
                 .build();
 
@@ -56,12 +56,12 @@ public abstract class EventRequestKafkaConsumer {
         eventRequestCache.add(consumerRecord.value());
     }
 
-    private String createEventName(EventKafkaProducer.OperationType operationType) {
+    private String createEventName(OperationType operationType) {
         return String.format("%s-%s-%s-%s-%s",
                 consumerConfig.getDomainName(),
                 consumerConfig.getPackageName(),
                 consumerConfig.getResourceName(),
-                operationType == EventKafkaProducer.OperationType.CREATE ? "create" : "update",
+                operationType == OperationType.CREATE ? "create" : "update",
                 "request");
     }
 

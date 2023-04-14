@@ -32,39 +32,21 @@ public abstract class ConsumerAdminController {
     @GetMapping("/health")
     public ResponseEntity<Event<Health>> healthCheck(@RequestHeader(HeaderConstants.ORG_ID) String orgId,
                                                      @RequestHeader(HeaderConstants.CLIENT) String client) {
-
         // TODO: 04/05/2022 Implement when status service is working (Should 303 to status serivce)
         throw new UnsupportedOperationException();
-
-//        log.debug("Health check on {} requested by {} ...", orgId, client);
-//        Event<Health> event = new Event<>(orgId, Constants.COMPONENT, DefaultActions.HEALTH, client);
-//        event.addData(new Health(Constants.COMPONENT_CONSUMER, HealthStatus.SENT_FROM_CONSUMER_TO_PROVIDER));
-//
-//        final Optional<Event<Health>> response = consumerEventUtil.healthCheck(event);
-//
-//        return response.map(health -> {
-//            log.debug("Health check response: {}", health.getData());
-//            health.addData(new Health(Constants.COMPONENT_CONSUMER, HealthStatus.RECEIVED_IN_CONSUMER_FROM_PROVIDER));
-//            return ResponseEntity.ok(health);
-//        }).orElseGet(() -> {
-//            log.debug("No response to health event.");
-//            event.setMessage("No response from adapter");
-//            return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(event);
-//        });
     }
 
     @GetMapping("/organisations")
     public Collection<String> getOrganisations() {
         return getConsumerServices()
                 .stream()
-                .map(cacheService -> cacheService.getCacheUrn())
+                .map(CacheService::getCacheUrn)
                 .collect(Collectors.toList());
     }
 
     @Deprecated()
     @GetMapping("/organisations/{orgId:.+}")
     public Collection<String> getOrganization(@PathVariable String orgId) {
-
         return !orgId.equals(consumerProps.getOrgId()) ? Collections.EMPTY_LIST : getOrganisations();
     }
 
@@ -94,7 +76,7 @@ public abstract class ConsumerAdminController {
                 .collect(
                         Collectors.groupingBy(s -> consumerProps.getOrgId(),
                                 Collectors.toMap(
-                                        s -> s.getResourceName(),
+                                        CacheService::getResourceName,
                                         s -> new CacheEntry(new Date(s.getLastUpdated()), s.getCacheSize())
                                 )
                         )
@@ -111,7 +93,7 @@ public abstract class ConsumerAdminController {
         getConsumerServices()
                 .stream()
                 .filter(cacheService -> StringUtils.isBlank(model) || StringUtils.equalsIgnoreCase(cacheService.getResourceName(), model))
-                .forEach(cacheService -> cacheService.resetCache());
+                .forEach(CacheService::resetCache);
     }
 
     protected abstract Collection<CacheService<?>> getConsumerServices();

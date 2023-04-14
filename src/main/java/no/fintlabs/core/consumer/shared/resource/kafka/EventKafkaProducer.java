@@ -1,5 +1,6 @@
 package no.fintlabs.core.consumer.shared.resource.kafka;
 
+import no.fintlabs.adapter.models.OperationType;
 import no.fintlabs.adapter.models.RequestFintEvent;
 import no.fintlabs.core.consumer.shared.resource.ConsumerConfig;
 import no.fintlabs.kafka.event.EventProducer;
@@ -14,11 +15,11 @@ public abstract class EventKafkaProducer {
 
     private final EventProducer<Object> eventProducer;
 
-    private final ConsumerConfig consumerConfig;
+    private final ConsumerConfig<?> consumerConfig;
 
     private final EventTopicService eventTopicService;
 
-    public EventKafkaProducer(EventProducerFactory eventProducerFactory, ConsumerConfig consumerConfig, EventTopicService eventTopicService) {
+    public EventKafkaProducer(EventProducerFactory eventProducerFactory, ConsumerConfig<?> consumerConfig, EventTopicService eventTopicService) {
         this.consumerConfig = consumerConfig;
         this.eventProducer = eventProducerFactory.createProducer(Object.class);
         this.eventTopicService = eventTopicService;
@@ -48,10 +49,5 @@ public abstract class EventKafkaProducer {
                         .value(event)
                         .build()
         );
-    }
-
-    public enum OperationType {
-        CREATE,
-        UPDATE
     }
 }

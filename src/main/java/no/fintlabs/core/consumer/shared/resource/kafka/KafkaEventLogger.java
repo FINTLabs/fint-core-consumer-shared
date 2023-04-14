@@ -9,10 +9,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class KafkaEventLogger {
 
-    private String resourceType;
-    private ScheduledThreadPoolExecutor executor;
+    private final String resourceType;
+    private final ScheduledThreadPoolExecutor executor;
     private Runnable task;
-    private AtomicInteger eventCount;
+    private final AtomicInteger eventCount;
     private long startTimer;
     private int previousCount;
 
