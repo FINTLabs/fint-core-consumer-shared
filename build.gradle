@@ -57,11 +57,11 @@ dependencies {
     implementation 'no.fintlabs:fint-core-cache:0.3.0'
     implementation 'no.fintlabs:fint-kafka:2.4.0'
     implementation 'no.fint:fint-event-model:3.0.2'
-    implementation('no.fint:fint-relations:2.2.1') {
+    implementation('no.fintlabs:fint-relations:2.2.2') {
         exclude group: 'com.github.springfox.loader'
         exclude group: 'org.springframework.boot'
     }
-    implementation 'no.fintlabs:fint-core-infra-models:1.1.0-rc-3'
+    implementation 'no.fintlabs:fint-core-infra-models:1.1.1'
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'

@@ -1,5 +1,6 @@
 package no.fintlabs.core.consumer.shared.resource.event;
 
+import no.fint.model.resource.FintLinks;
 import no.fintlabs.adapter.models.OperationType;
 import no.fintlabs.adapter.models.RequestFintEvent;
 import no.fintlabs.core.consumer.shared.resource.ConsumerConfig;
@@ -11,15 +12,16 @@ import no.fintlabs.kafka.event.topic.EventTopicNamePatternParameters;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import javax.annotation.PostConstruct;
+import java.io.Serializable;
 
-public abstract class EventRequestKafkaConsumer {
+public abstract class EventRequestKafkaConsumer<T extends FintLinks & Serializable> {
 
     private final EventConsumerFactoryService eventConsumerFactoryService;
-    private final ConsumerConfig<?> consumerConfig;
+    private final ConsumerConfig<T> consumerConfig;
     private final EventCache<RequestFintEvent> eventRequestCache;
 
     public EventRequestKafkaConsumer(EventConsumerFactoryService eventConsumerFactoryService,
-                                     ConsumerConfig<?> consumerConfig) {
+                                     ConsumerConfig<T> consumerConfig) {
         this.eventConsumerFactoryService = eventConsumerFactoryService;
         this.consumerConfig = consumerConfig;
         this.eventRequestCache = new EventCache<>();

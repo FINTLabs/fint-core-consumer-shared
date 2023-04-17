@@ -24,19 +24,19 @@ import java.util.UUID;
 @Slf4j
 public abstract class WriteableConsumerRestController<T extends FintLinks & Serializable> extends ConsumerRestController<T> {
 
-    private final ConsumerConfig<?> consumerConfig;
+    private final ConsumerConfig<T> consumerConfig;
     private final EventKafkaProducer eventKafkaProducer;
-    private final EventResponseKafkaConsumer eventResponseKafkaConsumer;
-    private final EventRequestKafkaConsumer eventRequestKafkaConsumer;
+    private final EventResponseKafkaConsumer<T> eventResponseKafkaConsumer;
+    private final EventRequestKafkaConsumer<T> eventRequestKafkaConsumer;
 
     public WriteableConsumerRestController(
             CacheService<T> cacheService,
             FintLinker<T> fintLinker,
-            ConsumerConfig<?> consumerConfig,
+            ConsumerConfig<T> consumerConfig,
             EventKafkaProducer eventKafkaProducer,
-            EventResponseKafkaConsumer eventResponseKafkaConsumer,
+            EventResponseKafkaConsumer<T> eventResponseKafkaConsumer,
             FintFilterService oDataFilterService,
-            EventRequestKafkaConsumer eventRequestKafkaConsumer) {
+            EventRequestKafkaConsumer<T> eventRequestKafkaConsumer) {
         super(cacheService, fintLinker, oDataFilterService);
         this.consumerConfig = consumerConfig;
         this.eventKafkaProducer = eventKafkaProducer;
@@ -51,30 +51,42 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
             @RequestHeader(HeaderConstants.CLIENT) String client) {
 
         log.debug("/status/{} for {} from {}", id, orgId, client);
-        ResponseFintEvent<?> responseFintEvent = eventResponseKafkaConsumer.getCache().get(id);
+        ResponseFintEvent<T> responseFintEvent = eventResponseKafkaConsumer.getCache().get(id);
         RequestFintEvent requestFintEvent = eventRequestKafkaConsumer.getCache().get(id);
 
-        if (responseFintEvent == null && requestFintEvent == null) {
-            log.warn("EventResponse corrId: {} has no matching request!");
-            return ResponseEntity.notFound().build();
-        } else if (responseFintEvent == null) {
-            log.info("EventResponse corrId: {} has no response yet.");
-            return ResponseEntity.accepted().build();
-        } else if (responseFintEvent.isFailed()) {
-            log.info("EventResponse corrId: {} has failed: {}", id, responseFintEvent.getErrorMessage());
-            return ResponseEntity.internalServerError().body(responseFintEvent.getErrorMessage());
-        } else if (responseFintEvent.isRejected()) {
-            log.info("EventResponse corrId: {} is rejected: {}", id, responseFintEvent.getErrorMessage());
-            return ResponseEntity.badRequest().body(responseFintEvent.getRejectReason());
-        } else {
-            Object entity = eventResponseKafkaConsumer.getEntityCache().get(id);
-            if (entity == null) {
-                log.warn("Get status, have response but no updated entity for " + id);
+        EventStatus eventStatus = determineEventStatus(responseFintEvent, requestFintEvent);
+
+        switch (eventStatus) {
+            case NOT_FOUND:
+                log.warn("EventResponse corrId: {} has no matching request!", id);
+                return ResponseEntity.notFound().build();
+
+            case NO_RESPONSE_YET:
+                log.info("EventResponse corrId: {} has no response yet.", id);
                 return ResponseEntity.accepted().build();
-            } else {
-                log.info("EventResponse corrId: {} is ok.");
-                return ResponseEntity.created(URI.create("")).body(entity);
-            }
+
+            case FAILED:
+                log.info("EventResponse corrId: {} has failed: {}", id, responseFintEvent.getErrorMessage());
+                return ResponseEntity.internalServerError().body(responseFintEvent.getErrorMessage());
+
+            case REJECTED:
+                log.info("EventResponse corrId: {} is rejected: {}", id, responseFintEvent.getErrorMessage());
+                return ResponseEntity.badRequest().body(responseFintEvent.getRejectReason());
+
+            case OK:
+                T entity = eventResponseKafkaConsumer.getEntityCache().get(id);
+                if (entity == null) {
+                    log.warn("Get status, have response but no updated entity for " + id);
+                    return ResponseEntity.accepted().build();
+                } else {
+                    log.info("EventResponse corrId: {} is ok.", id);
+                    URI location = UriComponentsBuilder.fromUriString(fintLinks.getSelfHref(entity)).build().toUri();
+                    return ResponseEntity.created(location).body(entity);
+                }
+
+            default:
+                throw new IllegalStateException("Unexpected value: " + eventStatus);
+
         }
     }
 
@@ -136,4 +148,23 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
         }
     }
 
+    private enum EventStatus {
+        NOT_FOUND, NO_RESPONSE_YET, FAILED, REJECTED, OK
+    }
+
+    private EventStatus determineEventStatus(ResponseFintEvent<T> responseFintEvent, RequestFintEvent requestFintEvent) {
+        if (responseFintEvent == null && requestFintEvent == null) {
+            return EventStatus.NOT_FOUND;
+        } else if (responseFintEvent == null) {
+            return EventStatus.NO_RESPONSE_YET;
+        } else if (responseFintEvent.isFailed()) {
+            return EventStatus.FAILED;
+        } else if (responseFintEvent.isRejected()) {
+            return EventStatus.REJECTED;
+        } else {
+            return EventStatus.OK;
+        }
+    }
+
 }
+

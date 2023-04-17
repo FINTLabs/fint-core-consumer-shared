@@ -1,5 +1,7 @@
 package no.fintlabs.core.consumer.shared.resource.event;
 
+import no.fint.model.resource.FintLinks;
+import no.fint.relations.FintLinker;
 import no.fintlabs.adapter.models.OperationType;
 import no.fintlabs.adapter.models.ResponseFintEvent;
 import no.fintlabs.core.consumer.shared.resource.ConsumerConfig;
@@ -11,27 +13,28 @@ import no.fintlabs.kafka.event.topic.EventTopicNamePatternParameters;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import javax.annotation.PostConstruct;
+import java.io.Serializable;
 
-public abstract class EventResponseKafkaConsumer {
+public abstract class EventResponseKafkaConsumer<T extends FintLinks & Serializable> {
 
     private final EventConsumerFactoryService eventConsumerFactoryService;
-    private final ConsumerConfig<?> consumerConfig;
-    private final EventCache<ResponseFintEvent<?>> eventResponseCache;
-    private final EventEntityCache eventEntityCache;
+    private final ConsumerConfig<T> consumerConfig;
+    private final EventCache<ResponseFintEvent<T>> eventResponseCache;
+    private final EventEntityCache<T> eventEntityCache;
 
     public EventResponseKafkaConsumer(EventConsumerFactoryService eventConsumerFactoryService,
-                                      ConsumerConfig<?> consumerConfig) {
+                                      ConsumerConfig<T> consumerConfig, FintLinker<T> fintLinker) {
         this.eventConsumerFactoryService = eventConsumerFactoryService;
         this.consumerConfig = consumerConfig;
         eventResponseCache = new EventCache<>();
-        eventEntityCache = new EventEntityCache();
+        eventEntityCache = new EventEntityCache<T>(fintLinker);
     }
 
-    public EventCache<ResponseFintEvent<?>> getCache() {
+    public EventCache<ResponseFintEvent<T>> getCache() {
         return eventResponseCache;
     }
 
-    public EventEntityCache getEntityCache() {
+    public EventEntityCache<T> getEntityCache() {
         return eventEntityCache;
     }
 
