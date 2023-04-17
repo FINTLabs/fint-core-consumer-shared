@@ -24,7 +24,7 @@ import java.util.UUID;
 @Slf4j
 public abstract class WriteableConsumerRestController<T extends FintLinks & Serializable> extends ConsumerRestController<T> {
 
-    private final ConsumerConfig consumerConfig;
+    private final ConsumerConfig<?> consumerConfig;
     private final EventKafkaProducer eventKafkaProducer;
     private final EventResponseKafkaConsumer eventResponseKafkaConsumer;
     private final EventRequestKafkaConsumer eventRequestKafkaConsumer;
@@ -79,7 +79,7 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
     }
 
     @PostMapping
-    public ResponseEntity postBehandling(
+    public ResponseEntity<T> postResource(
             @RequestHeader(name = HeaderConstants.ORG_ID, required = false) String orgId,
             @RequestHeader(name = HeaderConstants.CLIENT, required = false) String client,
             @RequestBody T body,
@@ -89,23 +89,16 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
         log.trace("Body: {}", body);
 
         // TODO: 13/08/2022 Should mapLinks be called?
-//        linker.mapLinks(body);
-//        Event event = new Event(orgId, Constants.COMPONENT, SamtykkeActions.UPDATE_BEHANDLING, client);
-//        event.addObject(objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS).convertValue(body, Map.class));
-//        event.setOperation(validate ? Operation.VALIDATE : Operation.CREATE);
-//        consumerEventUtil.send(event);
-//
-//        statusCache.put(event.getCorrId(), event);
 
         RequestFintEvent event = createRequestEvent(body, OperationType.CREATE);
-        eventKafkaProducer.sendEvent(event, EventKafkaProducer.OperationType.CREATE);
+        eventKafkaProducer.sendEvent(event, OperationType.CREATE);
 
         URI location = UriComponentsBuilder.fromUriString(fintLinks.self()).path("status/{id}").buildAndExpand(event.getCorrId()).toUri();
         return ResponseEntity.status(HttpStatus.ACCEPTED).location(location).build();
     }
 
     @PutMapping("/systemid/{id:.+}")
-    public ResponseEntity putBehandlingBySystemId(
+    public ResponseEntity<T> putResourceBySystemid(
             @PathVariable String id,
             @RequestHeader(name = HeaderConstants.ORG_ID, required = false) String orgId,
             @RequestHeader(name = HeaderConstants.CLIENT, required = false) String client,
@@ -114,19 +107,8 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
         log.debug("putBehandlingBySystemId {}, OrgId: {}, Client: {}", id, orgId, client);
         log.trace("Body: {}", body);
 
-//        linker.mapLinks(body);
-//        Event event = new Event(orgId, Constants.COMPONENT, SamtykkeActions.UPDATE_BEHANDLING, client);
-//        event.setQuery("systemid/" + id);
-//        event.addObject(objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS).convertValue(body, Map.class));
-//        event.setOperation(Operation.UPDATE);
-//        fintAuditService.audit(event);
-//
-//        consumerEventUtil.send(event);
-//
-//        statusCache.put(event.getCorrId(), event);
-
         RequestFintEvent event = createRequestEvent(body, OperationType.UPDATE);
-        eventKafkaProducer.sendEvent(event, EventKafkaProducer.OperationType.UPDATE);
+        eventKafkaProducer.sendEvent(event, OperationType.UPDATE);
 
         URI location = UriComponentsBuilder.fromUriString(fintLinks.self()).path("status/{id}").buildAndExpand(event.getCorrId()).toUri();
         return ResponseEntity.status(HttpStatus.ACCEPTED).location(location).build();

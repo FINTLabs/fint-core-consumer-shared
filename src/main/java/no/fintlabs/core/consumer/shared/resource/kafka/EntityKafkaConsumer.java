@@ -30,7 +30,7 @@ public abstract class EntityKafkaConsumer<V> {
             EntityConsumerFactoryService entityConsumerFactoryService,
             ListenerBeanRegistrationService listenerBeanRegistrationService,
             EntityTopicService entityTopicService,
-            ConsumerConfig consumerConfig
+            ConsumerConfig<?> consumerConfig
     ) {
         this.entityConsumerFactoryService = entityConsumerFactoryService;
         this.listenerBeanRegistrationService = listenerBeanRegistrationService;
