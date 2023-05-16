@@ -4,3 +4,7 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: https://idp.felleskomponent.no/nidp/oauth/nam
+
+fint:
+  security:
+    org-id: true

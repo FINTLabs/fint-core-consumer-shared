@@ -2,6 +2,7 @@ package no.fintlabs.core.consumer.shared.config;
 
 import no.fintlabs.core.consumer.shared.ConsumerProps;
 import no.vigoiks.resourceserver.security.FintJwtCoreConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -18,6 +19,9 @@ public class SecurityConfig {
 
     private final ConsumerProps consumerProps;
 
+    @Value("${fint.security.org-id:true}")
+    private boolean requireOrgId;
+
     public SecurityConfig(ConsumerProps consumerProps) {
         this.consumerProps = consumerProps;
     }
@@ -31,7 +35,6 @@ public class SecurityConfig {
                         .anyExchange()
                         .authenticated()
                 )
-
                 .oauth2ResourceServer((resourceServer) -> resourceServer
                         .jwt()
                         .jwtAuthenticationConverter(new FintJwtCoreConverter())
@@ -46,7 +49,7 @@ public class SecurityConfig {
                     .anyMatch(a -> a.getAuthority().equals("ORGID_" + consumerProps.getOrgId()));
             boolean hasRole = auth.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals(role));
-            return new AuthorizationDecision(hasRole && hasOrgId);
+            return new AuthorizationDecision(requireOrgId ? (hasRole && hasOrgId) : hasRole);
         });
     }
 }
