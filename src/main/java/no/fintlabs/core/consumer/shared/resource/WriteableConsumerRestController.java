@@ -59,7 +59,7 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
         switch (eventStatus) {
             case NOT_FOUND:
                 log.warn("EventResponse corrId: {} has no matching request!", id);
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.accepted().build();
 
             case NO_RESPONSE_YET:
                 log.info("EventResponse corrId: {} has no response yet.", id);
