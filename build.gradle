@@ -62,6 +62,7 @@ dependencies {
         exclude group: 'org.springframework.boot'
     }
     implementation 'no.fintlabs:fint-core-infra-models:1.1.1'
+    implementation 'no.fint:fint-felles-model-java:3.14.10'
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
