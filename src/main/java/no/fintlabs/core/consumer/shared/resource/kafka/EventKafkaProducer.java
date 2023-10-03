@@ -27,7 +27,7 @@ public abstract class EventKafkaProducer {
 
     public void sendEvent(RequestFintEvent event, OperationType operationType) {
 
-        String eventName = String.format("%s-%s-%s-%s-%s",
+        String eventName = "%s-%s-%s-%s-%s".formatted(
                 consumerConfig.getDomainName(),
                 consumerConfig.getPackageName(),
                 consumerConfig.getResourceName(),

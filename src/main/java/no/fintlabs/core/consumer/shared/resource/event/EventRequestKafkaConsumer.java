@@ -1,5 +1,6 @@
 package no.fintlabs.core.consumer.shared.resource.event;
 
+import jakarta.annotation.PostConstruct;
 import no.fint.model.resource.FintLinks;
 import no.fintlabs.adapter.models.OperationType;
 import no.fintlabs.adapter.models.RequestFintEvent;
@@ -11,7 +12,6 @@ import no.fintlabs.kafka.event.EventConsumerFactoryService;
 import no.fintlabs.kafka.event.topic.EventTopicNamePatternParameters;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import javax.annotation.PostConstruct;
 import java.io.Serializable;
 
 public abstract class EventRequestKafkaConsumer<T extends FintLinks & Serializable> {
@@ -59,7 +59,7 @@ public abstract class EventRequestKafkaConsumer<T extends FintLinks & Serializab
     }
 
     private String createEventName(OperationType operationType) {
-        return String.format("%s-%s-%s-%s-%s",
+        return "%s-%s-%s-%s-%s".formatted(
                 consumerConfig.getDomainName(),
                 consumerConfig.getPackageName(),
                 consumerConfig.getResourceName(),

@@ -95,7 +95,7 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
             @RequestHeader(name = HeaderConstants.ORG_ID, required = false) String orgId,
             @RequestHeader(name = HeaderConstants.CLIENT, required = false) String client,
             @RequestBody T body,
-            @RequestParam(name = "validate", required = false) boolean validate
+            @RequestParam(required = false) boolean validate
     ) {
         log.debug("postBehandling, Validate: {}, OrgId: {}, Client: {}", validate, orgId, client);
         log.trace("Body: {}", body);

@@ -48,7 +48,7 @@ public class KafkaEventLogger {
         long minutes = milliseconds / 1000 / 60 % 60;
         long seconds = milliseconds / 1000 % 60;
 
-        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        return "%02d:%02d:%02d".formatted(hours, minutes, seconds);
     }
 
 }

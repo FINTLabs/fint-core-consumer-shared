@@ -35,7 +35,7 @@ public abstract class EntityKafkaConsumer<V> {
         this.entityConsumerFactoryService = entityConsumerFactoryService;
         this.listenerBeanRegistrationService = listenerBeanRegistrationService;
         this.entityTopicService = entityTopicService;
-        this.resourceName = String.format("%s-%s-%s",
+        this.resourceName = "%s-%s-%s".formatted(
                 consumerConfig.getDomainName(),
                 consumerConfig.getPackageName(),
                 consumerConfig.getResourceName()
