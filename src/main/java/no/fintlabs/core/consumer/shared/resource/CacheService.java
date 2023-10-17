@@ -24,9 +24,8 @@ public abstract class CacheService<T extends FintLinks & Serializable> {
         this.consumerConfig = consumerConfig;
         this.cacheManager = cacheManager;
         this.entityKafkaConsumer = entityKafkaConsumer;
-        this.eventLogger = new KafkaEventLogger(consumerConfig.getResourceName());
-
         cache = initializeCache(cacheManager, consumerConfig, consumerConfig.getResourceName());
+        this.eventLogger = new KafkaEventLogger(consumerConfig.getResourceName(), cache);
     }
 
     protected abstract Cache<T> initializeCache(CacheManager cacheManager, ConsumerConfig<T> consumerConfig, String modelName);

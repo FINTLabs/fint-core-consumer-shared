@@ -1,6 +1,7 @@
 package no.fintlabs.core.consumer.shared.resource.kafka;
 
 import lombok.extern.slf4j.Slf4j;
+import no.fintlabs.cache.Cache;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +17,7 @@ public class KafkaEventLogger {
     private long startTimer;
     private int previousCount;
 
-    public KafkaEventLogger(String resourceType) {
+    public KafkaEventLogger(String resourceType, Cache<?> cache) {
         this.resourceType = resourceType;
         eventCount = new AtomicInteger(0);
         executor = new ScheduledThreadPoolExecutor(1);
@@ -25,7 +26,7 @@ public class KafkaEventLogger {
                 long endTimer = System.currentTimeMillis();
                 String timeTaken = getTimeFormat(endTimer - startTimer);
 
-                log.info(resourceType + " recieved: " + eventCount + " time taken: " + timeTaken);
+                log.info("{} received: {} | Time taken: {} | Cache size: {}" , resourceType, eventCount, timeTaken, cache.size());
                 previousCount = 0;
                 eventCount.set(0);
             } else {
