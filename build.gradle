@@ -49,19 +49,16 @@ dependencies {
 
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
-    implementation 'no.fintlabs:fint-resource-server-security:1.1.1-rc-3'
     implementation 'commons-codec:commons-codec:1.16.0'
     implementation 'com.google.guava:guava:32.1.2-jre'
     implementation 'no.fintlabs:fint-antlr:1.1.1'
-
+    implementation 'org.apache.commons:commons-lang3:3.8.1'
 
     implementation 'no.fintlabs:fint-core-cache:0.3.1'
     implementation 'no.fintlabs:fint-kafka:3.0.0-rc-1'
     implementation 'no.fint:fint-event-model:3.0.2'
-    implementation('no.fintlabs:fint-relations:2.2.2') {
-        exclude group: 'com.github.springfox.loader'
-        exclude group: 'org.springframework.boot'
-    }
+    implementation 'no.fintlabs:fint-core-relations:0.0.3'
+    implementation 'no.fint:fint-model-resource:0.4.1'
     implementation 'no.fintlabs:fint-core-infra-models:1.1.2'
     implementation 'no.fint:fint-felles-model-java:3.15.0'
 
