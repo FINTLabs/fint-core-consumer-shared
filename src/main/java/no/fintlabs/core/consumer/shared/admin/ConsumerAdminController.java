@@ -5,7 +5,7 @@ import no.fint.event.model.Event;
 import no.fint.event.model.HeaderConstants;
 import no.fint.event.model.health.Health;
 import no.fintlabs.cache.CacheManager;
-import no.fintlabs.core.consumer.shared.ConsumerProps;
+import no.fintlabs.core.consumer.shared.config.ConsumerProps;
 import no.fintlabs.core.consumer.shared.resource.CacheService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;

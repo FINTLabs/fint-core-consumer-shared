@@ -1,7 +1,7 @@
 package no.fintlabs.core.consumer.shared.resource;
 
 import no.fint.model.resource.FintLinks;
-import no.fintlabs.core.consumer.shared.ConsumerProps;
+import no.fintlabs.core.consumer.shared.config.ConsumerProps;
 
 import java.io.Serializable;
 
