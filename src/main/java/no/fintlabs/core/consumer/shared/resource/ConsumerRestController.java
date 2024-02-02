@@ -36,20 +36,20 @@ public abstract class ConsumerRestController<T extends FintLinks & Serializable>
     }
 
     @GetMapping("/last-updated")
-    public Map<String, String> getLastUpdated(@RequestHeader(name = HeaderConstants.ORG_ID, required = false) String orgId) {
+    public Map<String, String> lastUpdatedUrl(@RequestHeader(name = HeaderConstants.ORG_ID, required = false) String orgId) {
         String lastUpdated = Long.toString(cacheService.getLastUpdated());
         return Map.of("lastUpdated", lastUpdated);
     }
 
     @GetMapping("/cache/size")
-    public Map<String, Integer> getCacheSize(@RequestHeader(name = HeaderConstants.ORG_ID, required = false) String orgId) {
+    public Map<String, Integer> cacheSizeUrl(@RequestHeader(name = HeaderConstants.ORG_ID, required = false) String orgId) {
         return Map.of("size", cacheService.getCacheSize());
     }
 
     // TODO: 29/07/2022 Trond - Output endret fra FravarResources til AbstractCollectionResources<FravarResource>
     
     @GetMapping
-    public AbstractCollectionResources<T> getResource(
+    public AbstractCollectionResources<T> collectionUrl(
             @RequestHeader(name = HeaderConstants.ORG_ID, required = false) String orgId,
             @RequestHeader(name = HeaderConstants.CLIENT, required = false) String client,
             @RequestParam(defaultValue = "0") long sinceTimeStamp,
@@ -82,10 +82,10 @@ public abstract class ConsumerRestController<T extends FintLinks & Serializable>
     }
 
     @GetMapping("/{idName}/{idValue:.+}")
-    public ResponseEntity<T> handleDynamicGet(@PathVariable String idName,
-                                              @PathVariable String idValue,
-                                              @RequestHeader(name = no.fint.event.model.HeaderConstants.ORG_ID, required = false) String orgId,
-                                              @RequestHeader(name = HeaderConstants.CLIENT, required = false) String client) {
+    public ResponseEntity<T> oneUrl(@PathVariable String idName,
+                                    @PathVariable String idValue,
+                                    @RequestHeader(name = no.fint.event.model.HeaderConstants.ORG_ID, required = false) String orgId,
+                                    @RequestHeader(name = HeaderConstants.CLIENT, required = false) String client) {
 
         log.debug("idNavn: {}, idVerdi: {}, OrgId: {}, Client: {}", idName, idValue, orgId, client);
 
