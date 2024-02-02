@@ -21,7 +21,7 @@ public class Endpoints {
     @Value("${fint.relations.default-base-url:}")
     private String baseUrl;
 
-    @Bean(name = "defaultEndpoints")
+    @Bean(name = "endpoints")
     @ConditionalOnBean(name = REQUIRED_BEAN_NAME)
     public Map<String, Map<String, String>> getEndpoints(@Qualifier(REQUIRED_BEAN_NAME) RequestMappingHandlerMapping handlerMapping) {
         return handlerMapping.getHandlerMethods().entrySet().stream()
