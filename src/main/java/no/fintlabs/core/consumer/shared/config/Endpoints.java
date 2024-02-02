@@ -19,6 +19,9 @@ public class Endpoints {
     @Value("${fint.relations.default-base-url:}")
     private String baseUrl;
 
+    @Value("${spring.webflux.base-path:}")
+    private String uri;
+
     @Bean(name = "defaultEndpoints")
     @ConditionalOnBean
     public Map<String, Map<String, String>> getEndpoints(@Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping handlerMapping) {
@@ -34,7 +37,7 @@ public class Endpoints {
     }
 
     private String setUrl(PatternsRequestCondition patternsRequestCondition) {
-        return baseUrl + getFirstPattern(patternsRequestCondition);
+        return baseUrl + uri + getFirstPattern(patternsRequestCondition);
     }
 
     private String getFirstPattern(PatternsRequestCondition patternsRequestCondition) {
