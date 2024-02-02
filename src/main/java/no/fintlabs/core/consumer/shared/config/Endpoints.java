@@ -16,14 +16,12 @@ import java.util.stream.Collectors;
 @Configuration
 public class Endpoints {
 
-    private static final String REQUIRED_BEAN_NAME = "requestMappingHandlerMapping";
-
     @Value("${fint.relations.default-base-url:}")
     private String baseUrl;
 
-    @Bean(name = "endpoints")
-    @ConditionalOnBean(name = REQUIRED_BEAN_NAME)
-    public Map<String, Map<String, String>> getEndpoints(@Qualifier(REQUIRED_BEAN_NAME) RequestMappingHandlerMapping handlerMapping) {
+    @Bean(name = "defaultEndpoints")
+    @ConditionalOnBean
+    public Map<String, Map<String, String>> getEndpoints(@Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping handlerMapping) {
         return handlerMapping.getHandlerMethods().entrySet().stream()
                 .filter(entrySet -> entrySet.getKey().getName() != null)
                 .collect(Collectors.groupingBy(
