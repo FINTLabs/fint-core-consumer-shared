@@ -4,20 +4,15 @@ import lombok.extern.slf4j.Slf4j;
 import no.fintlabs.adapter.models.FintEvent;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class EventCache<T extends FintEvent> {
 
     private static final int MAX_HOURS_OLD = 4;
-    private static final int MILI_TO_HOURS = 60 * 60 * 1000;
-
-    private final Map<String, EventWrapper<T>> responses;
-
-    public EventCache() {
-        this.responses = new HashMap<>();
-    }
+    private final ConcurrentMap<String, EventWrapper<T>> responses = new ConcurrentHashMap<>();
 
     public void add(T fintEvent) {
         log.info("Adding new response with corrId: {}", fintEvent.getCorrId());
@@ -25,16 +20,13 @@ public class EventCache<T extends FintEvent> {
     }
 
     public T get(String corrId) {
-        if (responses.containsKey(corrId)) {
-            return responses.get(corrId).getFintEvent();
-        }
-        return null;
+        return responses.containsKey(corrId) ? responses.get(corrId).getFintEvent() : null;
     }
 
-    @Scheduled(initialDelay = 600000, fixedDelay = 1800000)
-    private void removeOld() {
+    @Scheduled(fixedDelay = 30, initialDelay = 10, timeUnit = TimeUnit.MINUTES)
+    private void purgeExpiredEvents() {
         long currentTime = System.currentTimeMillis();
-        responses.entrySet().removeIf(e -> currentTime - e.getValue().getCreated().getTime() > MAX_HOURS_OLD * MILI_TO_HOURS);
+        long maxAgeMillis = TimeUnit.HOURS.toMillis(MAX_HOURS_OLD);
+        responses.entrySet().removeIf(e -> currentTime - e.getValue().getCreated().getTime() > maxAgeMillis);
     }
-
 }

@@ -8,20 +8,20 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class EventEntityCache<T extends FintLinks & Serializable> {
 
-    private final FintLinker<T> fintLinker;
-
     private static final int MAX_HOURS_OLD = 4;
-    private static final int MILI_TO_HOURS = 60 * 60 * 1000;
-
-    private final Map<String, EventEntityCacheElement<T>> entities;
+    private final FintLinker<T> fintLinker;
+    private final ConcurrentMap<String, EventEntityCacheElement<T>> entities;
 
     public EventEntityCache(FintLinker<T> fintLinker) {
         this.fintLinker = fintLinker;
-        this.entities = new HashMap<>();
+        this.entities = new ConcurrentHashMap<>();
     }
 
     public void add(String corrId, T entity) {
@@ -34,9 +34,10 @@ public class EventEntityCache<T extends FintLinks & Serializable> {
         return entities.containsKey(corrId) ? entities.get(corrId).getEntity() : null;
     }
 
-    @Scheduled(initialDelay = 600000, fixedDelay = 1800000)
-    private void removeOld() {
+    @Scheduled(fixedDelay = 30, initialDelay = 10, timeUnit = TimeUnit.MINUTES)
+    private void purgeOldEntries() {
         long currentTime = System.currentTimeMillis();
-        entities.entrySet().removeIf(e -> currentTime - e.getValue().getCreated().getTime() > MAX_HOURS_OLD * MILI_TO_HOURS);
+        long maxAgeMillis = TimeUnit.HOURS.toMillis(MAX_HOURS_OLD);
+        entities.entrySet().removeIf(e -> currentTime - e.getValue().getCreated().getTime() > maxAgeMillis);
     }
 }
