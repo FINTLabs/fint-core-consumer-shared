@@ -9,6 +9,9 @@ import no.fintlabs.kafka.event.EventProducerRecord;
 import no.fintlabs.kafka.event.topic.EventTopicNameParameters;
 import no.fintlabs.kafka.event.topic.EventTopicService;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class EventKafkaProducer {
 
     private static final int RETENTION_TIME_MS = 172800000;
@@ -19,10 +22,14 @@ public abstract class EventKafkaProducer {
 
     private final EventTopicService eventTopicService;
 
+    private final List<String> existingTopics;
+
+
     public EventKafkaProducer(EventProducerFactory eventProducerFactory, ConsumerConfig<?> consumerConfig, EventTopicService eventTopicService) {
         this.consumerConfig = consumerConfig;
         this.eventProducer = eventProducerFactory.createProducer(Object.class);
         this.eventTopicService = eventTopicService;
+        this.existingTopics = new ArrayList<>();
     }
 
     public void sendEvent(RequestFintEvent event, OperationType operationType) {
@@ -41,7 +48,7 @@ public abstract class EventKafkaProducer {
                 .eventName(eventName)
                 .build();
 
-        eventTopicService.ensureTopic(topicNameParameters, RETENTION_TIME_MS);
+        createTopicIfNotExists(eventName, topicNameParameters);
 
         eventProducer.send(
                 EventProducerRecord.builder()
@@ -49,5 +56,12 @@ public abstract class EventKafkaProducer {
                         .value(event)
                         .build()
         );
+    }
+
+    private void createTopicIfNotExists(String eventName, EventTopicNameParameters topicNameParameters) {
+        if (!existingTopics.contains(eventName)) {
+            eventTopicService.ensureTopic(topicNameParameters, RETENTION_TIME_MS);
+            existingTopics.add(eventName);
+        }
     }
 }
