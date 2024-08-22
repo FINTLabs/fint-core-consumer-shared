@@ -51,7 +51,7 @@ dependencies {
     api 'no.fintlabs:fint-antlr:1.1.1'
     api 'no.fintlabs:fint-kafka:3.0.0-rc-1'
     api 'no.fintlabs:fint-core-cache:0.3.1'
-    api 'no.fintlabs:fint-core-relations:0.0.4'
+    api 'no.fintlabs:fint-core-relations:0.0.5'
     api 'no.fintlabs:fint-core-infra-models:1.1.2'
 
     implementation 'no.fint:fint-event-model:3.0.2'
