@@ -1,5 +1,7 @@
 package no.fintlabs.core.consumer.shared.resource.kafka;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import no.fintlabs.core.consumer.shared.resource.ConsumerConfig;
 import no.fintlabs.kafka.common.ListenerBeanRegistrationService;
@@ -20,7 +22,10 @@ public abstract class EntityKafkaConsumer<V> {
     private final ListenerBeanRegistrationService listenerBeanRegistrationService;
     private final String resourceName;
     private final OffsetSeekingTrigger resetTrigger;
-    private final Long topicRetensionTime = 0L;
+
+    @Getter
+    @Setter
+    private Long topicRetensionTime = 0L;
 
     public EntityKafkaConsumer(
             EntityConsumerFactoryService entityConsumerFactoryService,
