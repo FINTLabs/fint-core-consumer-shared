@@ -103,7 +103,7 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
         // TODO: 13/08/2022 Should mapLinks be called?
 
         RequestFintEvent event = createRequestEvent(body, OperationType.CREATE);
-        eventKafkaProducer.sendEvent(event, OperationType.CREATE);
+        eventKafkaProducer.sendEvent(event);
 
         URI location = UriComponentsBuilder.fromUriString(fintLinks.self()).path("status/{id}").buildAndExpand(event.getCorrId()).toUri();
         return ResponseEntity.status(HttpStatus.ACCEPTED).location(location).build();
@@ -120,7 +120,7 @@ public abstract class WriteableConsumerRestController<T extends FintLinks & Seri
         log.trace("Body: {}", body);
 
         RequestFintEvent event = createRequestEvent(body, OperationType.UPDATE);
-        eventKafkaProducer.sendEvent(event, OperationType.UPDATE);
+        eventKafkaProducer.sendEvent(event);
 
         URI location = UriComponentsBuilder.fromUriString(fintLinks.self()).path("status/{id}").buildAndExpand(event.getCorrId()).toUri();
         return ResponseEntity.status(HttpStatus.ACCEPTED).location(location).build();
