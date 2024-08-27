@@ -20,6 +20,7 @@ public abstract class EntityKafkaConsumer<V> {
     private final ListenerBeanRegistrationService listenerBeanRegistrationService;
     private final String resourceName;
     private final OffsetSeekingTrigger resetTrigger;
+    private final Long topicRetensionTime = 0L;
 
     public EntityKafkaConsumer(
             EntityConsumerFactoryService entityConsumerFactoryService,
