@@ -49,7 +49,7 @@ dependencies {
     api 'org.springframework.kafka:spring-kafka'
 
     api 'no.fintlabs:fint-antlr:1.1.1'
-    api 'no.fintlabs:fint-kafka:3.0.0-rc-1'
+    api 'no.fintlabs:fint-kafka:3.2.0-rc-1'
     api 'no.fintlabs:fint-core-cache:0.3.1'
     api 'no.fintlabs:fint-core-relations:0.0.5'
     api 'no.fintlabs:fint-core-infra-models:1.1.2'
