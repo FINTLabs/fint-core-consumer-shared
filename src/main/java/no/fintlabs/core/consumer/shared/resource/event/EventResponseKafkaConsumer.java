@@ -3,7 +3,6 @@ package no.fintlabs.core.consumer.shared.resource.event;
 import jakarta.annotation.PostConstruct;
 import no.fint.model.resource.FintLinks;
 import no.fint.relations.FintLinker;
-import no.fintlabs.adapter.models.OperationType;
 import no.fintlabs.adapter.models.ResponseFintEvent;
 import no.fintlabs.core.consumer.shared.resource.ConsumerConfig;
 import no.fintlabs.kafka.common.topic.pattern.FormattedTopicComponentPattern;
@@ -40,14 +39,11 @@ public abstract class EventResponseKafkaConsumer<T extends FintLinks & Serializa
 
     @PostConstruct
     private void init() {
-        EventTopicNamePatternParameters topicPatternParameter = EventTopicNamePatternParameters
+        EventTopicNamePatternParameters eventTopicName = EventTopicNamePatternParameters
                 .builder()
                 .orgId(FormattedTopicComponentPattern.anyOf(consumerConfig.getOrgId()))
                 .domainContext(FormattedTopicComponentPattern.anyOf("fint-core"))
-                .eventName(ValidatedTopicComponentPattern.anyOf(
-                        createEventName(OperationType.CREATE),
-                        createEventName(OperationType.UPDATE)
-                ))
+                .eventName(ValidatedTopicComponentPattern.endingWith("-response"))
                 .build();
 
         eventConsumerFactoryService.createFactory(
@@ -57,21 +53,12 @@ public abstract class EventResponseKafkaConsumer<T extends FintLinks & Serializa
                         .builder()
                         .seekingOffsetResetOnAssignment(true)
                         .build()
-        ).createContainer(topicPatternParameter);
+        ).createContainer(eventTopicName);
 
     }
 
     private void consumeEvent(ConsumerRecord<String, ResponseFintEvent> consumerRecord) {
         eventResponseCache.add(consumerRecord.value());
-    }
-
-    private String createEventName(OperationType operationType) {
-        return "%s-%s-%s-%s-%s".formatted(
-                consumerConfig.getDomainName(),
-                consumerConfig.getPackageName(),
-                consumerConfig.getResourceName(),
-                operationType == OperationType.CREATE ? "create" : "update",
-                "response");
     }
 
 }
