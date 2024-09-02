@@ -16,15 +16,11 @@ public abstract class EventKafkaProducer {
 
     private final EventProducer<Object> eventProducer;
     private final ConsumerConfig<?> consumerConfig;
-    private final EventTopicService eventTopicService;
-    private final Set<String> existingTopics;
 
 
-    public EventKafkaProducer(EventProducerFactory eventProducerFactory, ConsumerConfig<?> consumerConfig, EventTopicService eventTopicService) {
+    public EventKafkaProducer(EventProducerFactory eventProducerFactory, ConsumerConfig<?> consumerConfig) {
         this.consumerConfig = consumerConfig;
         this.eventProducer = eventProducerFactory.createProducer(Object.class);
-        this.eventTopicService = eventTopicService;
-        this.existingTopics = new HashSet<>();
     }
 
     public void sendEvent(RequestFintEvent event) {
@@ -36,8 +32,6 @@ public abstract class EventKafkaProducer {
                 .domainContext("fint-core")
                 .eventName(eventName)
                 .build();
-
-        createTopicIfNotExists(eventName, topicNameParameters);
 
         eventProducer.send(
                 EventProducerRecord.builder()
@@ -55,10 +49,4 @@ public abstract class EventKafkaProducer {
         );
     }
 
-    private void createTopicIfNotExists(String eventName, EventTopicNameParameters topicNameParameters) {
-        if (!existingTopics.contains(eventName)) {
-            eventTopicService.ensureTopic(topicNameParameters, Duration.ofDays(2).toMillis());
-            existingTopics.add(eventName);
-        }
-    }
 }
