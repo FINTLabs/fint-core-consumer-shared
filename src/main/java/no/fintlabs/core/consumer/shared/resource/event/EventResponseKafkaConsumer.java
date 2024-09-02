@@ -45,14 +45,12 @@ public abstract class EventResponseKafkaConsumer<T extends FintLinks & Serializa
 
     @PostConstruct
     private void init() {
-        EventTopicNameParameters eventTopicName = EventTopicNameParameters
+        EventTopicNamePatternParameters eventTopicName = EventTopicNamePatternParameters
                 .builder()
-                .orgId(consumerConfig.getOrgId())
-                .domainContext("fint-core")
-                .eventName(getEventName())
+                .orgId(FormattedTopicComponentPattern.anyOf(consumerConfig.getOrgId()))
+                .domainContext(FormattedTopicComponentPattern.anyOf("fint-core"))
+                .eventName(ValidatedTopicComponentPattern.anyOf(getEventName()))
                 .build();
-
-        eventTopicService.ensureTopic(eventTopicName, Duration.ofHours(2).toMillis());
 
         eventConsumerFactoryService.createFactory(
                 ResponseFintEvent.class,
