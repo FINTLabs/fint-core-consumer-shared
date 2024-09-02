@@ -11,9 +11,11 @@ import no.fintlabs.kafka.event.EventConsumerConfiguration;
 import no.fintlabs.kafka.event.EventConsumerFactoryService;
 import no.fintlabs.kafka.event.topic.EventTopicNameParameters;
 import no.fintlabs.kafka.event.topic.EventTopicNamePatternParameters;
+import no.fintlabs.kafka.event.topic.EventTopicService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.io.Serializable;
+import java.time.Duration;
 
 public abstract class EventResponseKafkaConsumer<T extends FintLinks & Serializable> {
 
@@ -21,11 +23,14 @@ public abstract class EventResponseKafkaConsumer<T extends FintLinks & Serializa
     private final ConsumerConfig<T> consumerConfig;
     private final EventCache<ResponseFintEvent<T>> eventResponseCache;
     private final EventEntityCache<T> eventEntityCache;
+    private final EventTopicService eventTopicService;
 
     public EventResponseKafkaConsumer(EventConsumerFactoryService eventConsumerFactoryService,
-                                      ConsumerConfig<T> consumerConfig, FintLinker<T> fintLinker) {
+                                      ConsumerConfig<T> consumerConfig, FintLinker<T> fintLinker,
+                                      EventTopicService eventTopicService) {
         this.eventConsumerFactoryService = eventConsumerFactoryService;
         this.consumerConfig = consumerConfig;
+        this.eventTopicService = eventTopicService;
         eventResponseCache = new EventCache<>();
         eventEntityCache = new EventEntityCache<T>(fintLinker);
     }
@@ -46,6 +51,8 @@ public abstract class EventResponseKafkaConsumer<T extends FintLinks & Serializa
                 .domainContext("fint-core")
                 .eventName(getEventName())
                 .build();
+
+        eventTopicService.ensureTopic(eventTopicName, Duration.ofHours(2).toMillis());
 
         eventConsumerFactoryService.createFactory(
                 ResponseFintEvent.class,
