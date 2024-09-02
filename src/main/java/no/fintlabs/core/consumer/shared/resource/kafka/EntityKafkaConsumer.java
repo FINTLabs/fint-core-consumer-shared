@@ -24,7 +24,6 @@ public abstract class EntityKafkaConsumer<V> {
     private final OffsetSeekingTrigger resetTrigger;
 
     @Getter
-    @Setter
     private Long topicRetensionTime = 0L;
 
     public EntityKafkaConsumer(
@@ -69,4 +68,8 @@ public abstract class EntityKafkaConsumer<V> {
         resetTrigger.seekToBeginning();
     }
 
+    public void setTopicRetensionTime(Long topicRetensionTime) {
+        log.info("Setting retension time for {} to {}", resourceName, topicRetensionTime);
+        this.topicRetensionTime = topicRetensionTime;
+    }
 }
