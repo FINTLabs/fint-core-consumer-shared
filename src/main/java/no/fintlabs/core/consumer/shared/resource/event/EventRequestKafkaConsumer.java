@@ -9,6 +9,7 @@ import no.fintlabs.kafka.common.topic.pattern.FormattedTopicComponentPattern;
 import no.fintlabs.kafka.common.topic.pattern.ValidatedTopicComponentPattern;
 import no.fintlabs.kafka.event.EventConsumerConfiguration;
 import no.fintlabs.kafka.event.EventConsumerFactoryService;
+import no.fintlabs.kafka.event.topic.EventTopicNameParameters;
 import no.fintlabs.kafka.event.topic.EventTopicNamePatternParameters;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
@@ -33,11 +34,11 @@ public abstract class EventRequestKafkaConsumer<T extends FintLinks & Serializab
 
     @PostConstruct
     private void init() {
-        EventTopicNamePatternParameters topicPatternParameter = EventTopicNamePatternParameters
+        EventTopicNameParameters topicPatternParameter = EventTopicNameParameters
                 .builder()
-                .orgId(FormattedTopicComponentPattern.anyOf(consumerConfig.getOrgId()))
-                .domainContext(FormattedTopicComponentPattern.anyOf("fint-core"))
-                .eventName(ValidatedTopicComponentPattern.endingWith("-request"))
+                .orgId(consumerConfig.getOrgId())
+                .domainContext("fint-core")
+                .eventName(getEventName())
                 .build();
 
         eventConsumerFactoryService.createFactory(
@@ -53,6 +54,10 @@ public abstract class EventRequestKafkaConsumer<T extends FintLinks & Serializab
 
     private void consumeEvent(ConsumerRecord<String, RequestFintEvent> consumerRecord) {
         eventRequestCache.add(consumerRecord.value());
+    }
+
+    private String getEventName() {
+        return "%s-%s-%s-request".formatted(consumerConfig.getDomainName(), consumerConfig.getPackageName(), consumerConfig.getResourceName());
     }
 
 }
