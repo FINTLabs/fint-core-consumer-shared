@@ -4,9 +4,12 @@ import jakarta.annotation.PostConstruct;
 import no.fint.model.resource.FintLinks;
 import no.fintlabs.adapter.models.RequestFintEvent;
 import no.fintlabs.core.consumer.shared.resource.ConsumerConfig;
+import no.fintlabs.kafka.common.topic.pattern.FormattedTopicComponentPattern;
+import no.fintlabs.kafka.common.topic.pattern.ValidatedTopicComponentPattern;
 import no.fintlabs.kafka.event.EventConsumerConfiguration;
 import no.fintlabs.kafka.event.EventConsumerFactoryService;
 import no.fintlabs.kafka.event.topic.EventTopicNameParameters;
+import no.fintlabs.kafka.event.topic.EventTopicNamePatternParameters;
 import no.fintlabs.kafka.event.topic.EventTopicService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
@@ -34,11 +37,11 @@ public abstract class EventRequestKafkaConsumer<T extends FintLinks & Serializab
 
     @PostConstruct
     private void init() {
-        EventTopicNameParameters topicPatternParameter = EventTopicNameParameters
+        EventTopicNamePatternParameters topicPatternParameter = EventTopicNamePatternParameters
                 .builder()
-                .orgId(consumerConfig.getOrgId())
-                .domainContext("fint-core")
-                .eventName(getEventName())
+                .orgId(FormattedTopicComponentPattern.anyOf(consumerConfig.getOrgId()))
+                .domainContext(FormattedTopicComponentPattern.anyOf("fint-core"))
+                .eventName(ValidatedTopicComponentPattern.anyOf(getEventName()))
                 .build();
 
         eventConsumerFactoryService.createFactory(
