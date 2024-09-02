@@ -37,10 +37,7 @@ public abstract class EventRequestKafkaConsumer<T extends FintLinks & Serializab
                 .builder()
                 .orgId(FormattedTopicComponentPattern.anyOf(consumerConfig.getOrgId()))
                 .domainContext(FormattedTopicComponentPattern.anyOf("fint-core"))
-                .eventName(ValidatedTopicComponentPattern.anyOf(
-                        createEventName(OperationType.CREATE),
-                        createEventName(OperationType.UPDATE)
-                ))
+                .eventName(ValidatedTopicComponentPattern.endingWith("-request"))
                 .build();
 
         eventConsumerFactoryService.createFactory(
@@ -56,15 +53,6 @@ public abstract class EventRequestKafkaConsumer<T extends FintLinks & Serializab
 
     private void consumeEvent(ConsumerRecord<String, RequestFintEvent> consumerRecord) {
         eventRequestCache.add(consumerRecord.value());
-    }
-
-    private String createEventName(OperationType operationType) {
-        return "%s-%s-%s-%s-%s".formatted(
-                consumerConfig.getDomainName(),
-                consumerConfig.getPackageName(),
-                consumerConfig.getResourceName(),
-                operationType == OperationType.CREATE ? "create" : "update",
-                "request");
     }
 
 }
