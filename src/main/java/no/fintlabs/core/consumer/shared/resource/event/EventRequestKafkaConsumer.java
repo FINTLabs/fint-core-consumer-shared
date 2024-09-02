@@ -2,20 +2,15 @@ package no.fintlabs.core.consumer.shared.resource.event;
 
 import jakarta.annotation.PostConstruct;
 import no.fint.model.resource.FintLinks;
-import no.fintlabs.adapter.models.OperationType;
 import no.fintlabs.adapter.models.RequestFintEvent;
 import no.fintlabs.core.consumer.shared.resource.ConsumerConfig;
-import no.fintlabs.kafka.common.topic.pattern.FormattedTopicComponentPattern;
-import no.fintlabs.kafka.common.topic.pattern.ValidatedTopicComponentPattern;
 import no.fintlabs.kafka.event.EventConsumerConfiguration;
 import no.fintlabs.kafka.event.EventConsumerFactoryService;
 import no.fintlabs.kafka.event.topic.EventTopicNameParameters;
-import no.fintlabs.kafka.event.topic.EventTopicNamePatternParameters;
 import no.fintlabs.kafka.event.topic.EventTopicService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.io.Serializable;
-import java.time.Duration;
 
 public abstract class EventRequestKafkaConsumer<T extends FintLinks & Serializable> {
 
@@ -45,8 +40,6 @@ public abstract class EventRequestKafkaConsumer<T extends FintLinks & Serializab
                 .domainContext("fint-core")
                 .eventName(getEventName())
                 .build();
-
-        eventTopicService.ensureTopic(topicPatternParameter, Duration.ofHours(2).toMillis());
 
         eventConsumerFactoryService.createFactory(
                 RequestFintEvent.class,
