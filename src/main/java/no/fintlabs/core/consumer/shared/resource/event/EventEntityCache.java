@@ -25,7 +25,7 @@ public class EventEntityCache<T extends FintLinks & Serializable> {
     }
 
     public void add(String corrId, T entity) {
-        log.info("Adding new response with corrId: {}", corrId);
+        log.info("Adding new response entity to cache with corrId: {}", corrId);
         fintLinker.mapLinks(entity);
         entities.put(corrId, new EventEntityCacheElement<T>(entity));
     }

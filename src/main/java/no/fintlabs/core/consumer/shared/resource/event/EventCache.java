@@ -14,8 +14,8 @@ public class EventCache<T extends FintEvent> {
     private static final int MAX_HOURS_OLD = 4;
     private final ConcurrentMap<String, EventWrapper<T>> responses = new ConcurrentHashMap<>();
 
-    public void add(T fintEvent) {
-        log.info("Adding new response with corrId: {}", fintEvent.getCorrId());
+    public void add(T fintEvent, String eventName) {
+        log.info("Adding new {} with corrId: {}", eventName, fintEvent.getCorrId());
         responses.put(fintEvent.getCorrId(), new EventWrapper<T>(fintEvent));
     }
 
