@@ -11,6 +11,7 @@ import no.fintlabs.kafka.entity.EntityConsumerConfiguration;
 import no.fintlabs.kafka.entity.EntityConsumerFactoryService;
 import no.fintlabs.kafka.entity.topic.EntityTopicNameParameters;
 import no.fintlabs.kafka.entity.topic.EntityTopicNamePatternParameters;
+import no.fintlabs.kafka.entity.topic.EntityTopicService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.listener.CommonLoggingErrorHandler;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
@@ -24,6 +25,7 @@ public abstract class EntityKafkaConsumer<V> {
     private final ListenerBeanRegistrationService listenerBeanRegistrationService;
     private final OffsetSeekingTrigger resetTrigger;
     private final ConsumerConfig<?> consumerConfig;
+    private final EntityTopicService entityTopicService;
 
     @Getter
     private Long topicRetensionTime = 0L;
@@ -31,11 +33,13 @@ public abstract class EntityKafkaConsumer<V> {
     public EntityKafkaConsumer(
             EntityConsumerFactoryService entityConsumerFactoryService,
             ListenerBeanRegistrationService listenerBeanRegistrationService,
+            EntityTopicService entityTopicService,
             ConsumerConfig<?> consumerConfig
     ) {
         this.entityConsumerFactoryService = entityConsumerFactoryService;
         this.listenerBeanRegistrationService = listenerBeanRegistrationService;
         this.consumerConfig = consumerConfig;
+        this.entityTopicService = entityTopicService;
         resetTrigger = new OffsetSeekingTrigger();
     }
 
