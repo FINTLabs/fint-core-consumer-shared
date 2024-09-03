@@ -5,8 +5,11 @@ import no.fintlabs.cache.Cache;
 import no.fintlabs.cache.CacheManager;
 import no.fintlabs.core.consumer.shared.resource.kafka.EntityKafkaConsumer;
 import no.fintlabs.core.consumer.shared.resource.kafka.KafkaEventLogger;
+import org.apache.kafka.common.header.Header;
 
 import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -75,5 +78,28 @@ public abstract class CacheService<T extends FintLinks & Serializable> {
 
     public String getResourceName() {
         return consumerConfig.getResourceName();
+    }
+
+    private byte[] previousRetentionTimeValue = null;
+
+    protected void updateRetensionTime(Header header) {
+        if (header != null) {
+            byte[] currentRetentionTimeValue = header.value();
+            if (!Arrays.equals(previousRetentionTimeValue, currentRetentionTimeValue)) {
+                previousRetentionTimeValue = currentRetentionTimeValue;
+                long retensionTime = convertRetensionTime(header.value());
+                if (retensionTime != entityKafkaConsumer.getTopicRetensionTime()) {
+                    entityKafkaConsumer.setTopicRetensionTime(retensionTime);
+                    getCache().setRetentionPeriodInMs(retensionTime);
+                }
+            }
+        }
+    }
+
+    private long convertRetensionTime(byte[] value) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.put(value);
+        buffer.flip();
+        return buffer.getLong();
     }
 }
