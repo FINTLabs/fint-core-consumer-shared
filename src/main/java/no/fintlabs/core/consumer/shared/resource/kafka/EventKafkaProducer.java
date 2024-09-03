@@ -1,5 +1,6 @@
 package no.fintlabs.core.consumer.shared.resource.kafka;
 
+import lombok.extern.slf4j.Slf4j;
 import no.fintlabs.adapter.models.RequestFintEvent;
 import no.fintlabs.core.consumer.shared.resource.ConsumerConfig;
 import no.fintlabs.kafka.event.EventProducer;
@@ -12,6 +13,7 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
 public abstract class EventKafkaProducer {
 
     private final EventProducer<Object> eventProducer;
@@ -57,6 +59,7 @@ public abstract class EventKafkaProducer {
 
     private void createTopicIfNotExists(String eventName, EventTopicNameParameters topicNameParameters) {
         if (!existingTopics.contains(eventName)) {
+            log.info("Ensuring event topic: {}", topicNameParameters.getTopicName());
             eventTopicService.ensureTopic(topicNameParameters, Duration.ofDays(2).toMillis());
             existingTopics.add(eventName);
         }
