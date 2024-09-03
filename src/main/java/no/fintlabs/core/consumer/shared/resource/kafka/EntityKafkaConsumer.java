@@ -42,7 +42,7 @@ public abstract class EntityKafkaConsumer<V> {
     public void registerListener(Class<V> clazz, Consumer<ConsumerRecord<String, V>> consumer) {
         EntityTopicNamePatternParameters topicNameParameters = EntityTopicNamePatternParameters
                 .builder()
-                .orgId(FormattedTopicComponentPattern.anyOf())
+                .orgId(FormattedTopicComponentPattern.anyOf(consumerConfig.getOrgId().replace(".", "-")))
                 .domainContext(FormattedTopicComponentPattern.anyOf("fint-core"))
                 .resource(FormattedTopicComponentPattern.anyOf(getResourceName()))
                 .build();
@@ -60,7 +60,7 @@ public abstract class EntityKafkaConsumer<V> {
                         )
                         .createContainer(topicNameParameters);
 
-        log.info("Listening to entity topic topic: {}", "%s.fint-core.entity.%s".formatted(consumerConfig.getOrgId(), getResourceName()));
+        log.info("Listening to entity topic topic: {}", getResourceName());
         listenerBeanRegistrationService.registerBean(messageListenerContainer);
     }
 
