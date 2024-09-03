@@ -64,7 +64,7 @@ public abstract class EventResponseKafkaConsumer<T extends FintLinks & Serializa
     }
 
     private void consumeEvent(ConsumerRecord<String, ResponseFintEvent> consumerRecord) {
-        eventResponseCache.add(consumerRecord.value());
+        eventResponseCache.add(consumerRecord.value(), "response");
     }
 
     private String getEventName() {
